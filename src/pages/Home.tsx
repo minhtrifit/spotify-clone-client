@@ -12,7 +12,7 @@ const Home = () => {
   return (
     <div>
       <Split
-        className="w-full h-[calc(100vh-100px)] flex p-2"
+        className="w-full h-[calc(100vh-100px)] flex p-2 justify-center"
         sizes={[15, 85]}
         minSize={100}
         expandToMin={false}
@@ -27,7 +27,7 @@ const Home = () => {
         <Content />
       </Split>
       <div className="fixed bottom-0 h-[100px] w-[100%] flex justify-between">
-        <div className="w-[400px] flex items-center gap-3 ml-3">
+        <div className="hidden md:flex w-[400px] items-center gap-3 ml-3">
           <div className="w-[60px] h-[60px] border border-solid rounded-md">
             <img className="w-[100%]" src="../audio.png" alt="audio" />
           </div>

@@ -16,7 +16,7 @@ const Slidebar = (props: Proptype) => {
   const nagivate = useNavigate();
 
   return (
-    <div className="min-w-[250px] max-h-screen flex flex-col gap-2">
+    <div className="hidden min-w-[250px] max-h-screen md:flex flex-col gap-2">
       <div className="bg-[#1a1a1a] rounded-md py-6 px-6">
         <Link to="/">
           <div className="flex items-center gap-[3px]">
