@@ -24,7 +24,7 @@ const MainHome = () => {
 
   return (
     <div>
-      <MediaCard title="Featured Audio" list={audioList} />
+      <MediaCard title="Featured Audio" type="audio" list={audioList} />
     </div>
   );
 };
