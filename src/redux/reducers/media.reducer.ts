@@ -1,6 +1,8 @@
 import { createReducer, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+import { updateTargetAudio } from "../actions/media.action";
+
 import { Audio } from "../../types/media";
 
 // Interface declair
@@ -94,6 +96,10 @@ const mediaReducer = createReducer(initialState, (builder) => {
     .addCase(getAllAudios.rejected, (state) => {
       state.isLoading = false;
       state.isError = true;
+    })
+    .addCase(updateTargetAudio, (state, action) => {
+      const audio: any = action.payload;
+      state.targetAudio = audio;
     });
 });
 

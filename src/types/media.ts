@@ -4,13 +4,14 @@ export interface Audio {
   artists?: Artist[];
   albums?: Album[];
   url?: string;
+  avatar?: string;
 }
 
 interface Artist {
   id: number;
   name: string;
   followers?: number;
-  avatar?: number;
+  avatar?: string;
 }
 
 interface Album {
@@ -18,4 +19,5 @@ interface Album {
   name: string;
   audios?: Audio[];
   createdAt?: string;
+  avatar?: string;
 }

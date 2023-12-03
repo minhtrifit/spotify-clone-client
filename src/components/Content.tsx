@@ -8,7 +8,7 @@ import DetailAudio from "../pages/DetailAudio";
 
 const Content = () => {
   return (
-    <div className="w-[100%] max-h-screen bg-[#1a1a1a] rounded-md py-4 px-6 overflow-y-auto">
+    <div className="w-[100%] max-h-screen bg-[#121212] rounded-md py-4 px-6 overflow-y-auto">
       <Header />
       <div className="mt-[60px]">
         <Routes>

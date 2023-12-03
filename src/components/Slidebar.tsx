@@ -17,7 +17,7 @@ const Slidebar = (props: Proptype) => {
 
   return (
     <div className="hidden min-w-[250px] max-h-screen md:flex flex-col gap-2">
-      <div className="bg-[#1a1a1a] rounded-md py-6 px-6">
+      <div className="bg-[#121212] rounded-md py-6 px-6">
         <Link to="/">
           <div className="flex items-center gap-[3px]">
             <p>
@@ -67,7 +67,7 @@ const Slidebar = (props: Proptype) => {
         </div>
       </div>
 
-      <div className="h-[100%] text-[15px] bg-[#1a1a1a] rounded-md py-4 px-6">
+      <div className="h-[100%] text-[15px] bg-[#121212] rounded-md py-4 px-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3 hover:cursor-pointer hover:font-semibold">
             <BiLibrary size={30} />

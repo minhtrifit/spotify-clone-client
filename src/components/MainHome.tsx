@@ -1,12 +1,20 @@
 import { useEffect } from "react";
 
+import { useSelector } from "react-redux";
 import { useAppDispatch } from "../redux/hooks";
+import { RootState } from "../redux/store";
 import { getAllAudios } from "../redux/reducers/media.reducer";
 
-import AudioList from "./AudioList";
+import { Audio } from "../types/media";
+
+import MediaCard from "./MediaCard";
 
 const MainHome = () => {
   const dispatchAsync = useAppDispatch();
+
+  const audioList = useSelector<RootState, Audio[]>(
+    (state) => state.media.audios
+  );
 
   useEffect(() => {
     dispatchAsync(getAllAudios());
@@ -16,7 +24,7 @@ const MainHome = () => {
 
   return (
     <div>
-      <AudioList title="Featured Audio" />
+      <MediaCard title="Featured Audio" list={audioList} />
     </div>
   );
 };

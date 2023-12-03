@@ -1,14 +1,21 @@
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+
+import { Audio as AudioType } from "../types/media";
+
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 
 const Audio = () => {
+  const audio = useSelector<RootState, AudioType | null>(
+    (state) => state.media.targetAudio
+  );
+
   return (
     <AudioPlayer
       autoPlay
       showSkipControls
-      src={
-        "http://docs.google.com/uc?export=open&id=1K_XLMhRmX7roaVqvRl7poO0tq5fwJGbr"
-      }
+      src={audio?.url}
       style={{
         backgroundColor: "black",
       }}
