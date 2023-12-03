@@ -3,7 +3,7 @@ import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 const Header = () => {
   return (
     <div
-      className={`w-[100%] h-[50px] top-3 flex items-center justify-between`}
+      className={`w-[100%] h-[50px] px-6 top-3 flex items-center justify-between`}
     >
       <div className="flex items-center gap-3">
         <div

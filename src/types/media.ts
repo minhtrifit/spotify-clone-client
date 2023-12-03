@@ -7,14 +7,14 @@ export interface Audio {
   avatar?: string;
 }
 
-interface Artist {
+export interface Artist {
   id: number;
   name: string;
   followers?: number;
   avatar?: string;
 }
 
-interface Album {
+export interface Album {
   id: number;
   name: string;
   audios?: Audio[];

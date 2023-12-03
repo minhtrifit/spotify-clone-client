@@ -1,9 +1,14 @@
 import { createReducer, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-import { updateTargetAudio, updateIsPlaying } from "../actions/media.action";
+import {
+  updateTargetAudio,
+  updateIsPlaying,
+  updateIsPlayingAlbum,
+  updateTargetAlbum,
+} from "../actions/media.action";
 
-import { Audio } from "../../types/media";
+import { Audio, Album } from "../../types/media";
 
 // Interface declair
 interface MediaState {
@@ -14,6 +19,10 @@ interface MediaState {
   targetAudio: Audio | null;
   detailAudio: Audio | null;
   isPlayingAudio: boolean;
+  albums: Album[];
+  targetAlbum: Audio | null;
+  detailAlbum: Album | null;
+  isPlayingAlbum: boolean;
 }
 
 // createAsyncThunk middleware
@@ -59,7 +68,56 @@ export const getAudioById = createAsyncThunk(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.name === "AxiosError") {
-        return thunkAPI.rejectWithValue({ message: "Get audios failed" });
+        return thunkAPI.rejectWithValue({ message: "Get audio failed" });
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getAllAlbums = createAsyncThunk(
+  "albums/getAllAlbums",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  // Dùng dấu _ cho các API không có params
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get<Album[]>(
+        `${import.meta.env.VITE_API_URL}/api/v1/albums`,
+        {
+          signal: thunkAPI.signal,
+        }
+      );
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.name === "AxiosError") {
+        return thunkAPI.rejectWithValue({ message: "Get albums failed" });
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getAlbumById = createAsyncThunk(
+  "albums/getAlbumById",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (id: number, thunkAPI) => {
+    try {
+      const response = await axios.get<Album[]>(
+        `${import.meta.env.VITE_API_URL}/api/v1/album/${id}`,
+        {
+          signal: thunkAPI.signal,
+        }
+      );
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.name === "AxiosError") {
+        return thunkAPI.rejectWithValue({ message: "Get album failed" });
       }
       return thunkAPI.rejectWithValue(error);
     }
@@ -107,6 +165,10 @@ const initialState: MediaState = {
   targetAudio: null,
   detailAudio: null,
   isPlayingAudio: false,
+  albums: [],
+  detailAlbum: null,
+  isPlayingAlbum: false,
+  targetAlbum: null,
 };
 
 const mediaReducer = createReducer(initialState, (builder) => {
@@ -125,11 +187,18 @@ const mediaReducer = createReducer(initialState, (builder) => {
       state.isLoading = false;
       state.isError = true;
     })
+
     .addCase(updateTargetAudio, (state, action) => {
       const audio: any = action.payload;
       state.targetAudio = audio;
       state.isPlayingAudio = true;
     })
+
+    .addCase(updateTargetAlbum, (state, action) => {
+      const album: any = action.payload;
+      state.targetAlbum = album;
+    })
+
     .addCase(getAudioById.pending, (state) => {
       state.isLoading = true;
     })
@@ -144,9 +213,45 @@ const mediaReducer = createReducer(initialState, (builder) => {
       state.isLoading = false;
       state.isError = true;
     })
+
     .addCase(updateIsPlaying, (state, action) => {
       const value: any = action.payload;
       state.isPlayingAudio = value;
+    })
+
+    .addCase(getAllAlbums.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(getAllAlbums.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.isError = false;
+
+      const payload: any = action.payload;
+      state.albums = payload.data;
+    })
+    .addCase(getAllAlbums.rejected, (state) => {
+      state.isLoading = false;
+      state.isError = true;
+    })
+
+    .addCase(getAlbumById.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(getAlbumById.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.isError = false;
+
+      const payload: any = action.payload;
+      state.detailAlbum = payload.data;
+    })
+    .addCase(getAlbumById.rejected, (state) => {
+      state.isLoading = false;
+      state.isError = true;
+    })
+
+    .addCase(updateIsPlayingAlbum, (state, action) => {
+      const value: any = action.payload;
+      state.isPlayingAlbum = value;
     });
 });
 

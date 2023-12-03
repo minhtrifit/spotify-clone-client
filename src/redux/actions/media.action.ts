@@ -5,3 +5,11 @@ export const updateTargetAudio = createAction<string>(
 );
 
 export const updateIsPlaying = createAction<string>("media/updateIsPlaying");
+
+export const updateTargetAlbum = createAction<string>(
+  "media/updateTargetAlbum"
+);
+
+export const updateIsPlayingAlbum = createAction<string>(
+  "media/updateIsPlayingAlbum"
+);
