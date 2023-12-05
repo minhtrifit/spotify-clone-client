@@ -1,6 +1,10 @@
+import { useNavigate } from "react-router-dom";
+
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 
 const Header = () => {
+  const navigate = useNavigate();
+
   return (
     <div
       className={`w-[100%] h-[50px] px-6 top-3 flex items-center justify-between`}
@@ -27,12 +31,18 @@ const Header = () => {
         <div
           className="text-gray-400 font-semibold
                     hover:cursor-pointer hover:text-white transform transition duration-200 hover:scale-110"
+          onClick={() => {
+            navigate("/signup");
+          }}
         >
           Sign up
         </div>
         <div
           className="bg-white text-black font-semibold py-3 px-8 rounded-[100px]
                     hover:cursor-pointer transform transition duration-200 hover:scale-110"
+          onClick={() => {
+            navigate("/login");
+          }}
         >
           Log in
         </div>
