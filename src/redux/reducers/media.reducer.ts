@@ -124,38 +124,6 @@ export const getAlbumById = createAsyncThunk(
   }
 );
 
-// export const addNewProduct = createAsyncThunk(
-//   "products/addNewProduct",
-//   async (product: NewProduct, thunkAPI) => {
-//     try {
-//       const response = await axios.post<{ id: string }>(
-//         `${import.meta.env.VITE_API_URL}/products`,
-//         {
-//           signal: thunkAPI.signal,
-//           body: JSON.stringify(product),
-//         }
-//       );
-
-//       const newProductId = response.data?.id;
-
-//       // Create Product
-//       const data: Product = {
-//         ...product,
-//         id: Number(newProductId),
-//         price: product.price.toString(),
-//       };
-
-//       return data;
-//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     } catch (error: any) {
-//       if (error.name === "AxiosError") {
-//         return thunkAPI.rejectWithValue({ message: "Add products failed" });
-//       }
-//       return thunkAPI.rejectWithValue(error);
-//     }
-//   }
-// );
-
 // InitialState value
 const initialState: MediaState = {
   currentId: "",

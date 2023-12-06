@@ -1,5 +1,11 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import { toast } from "react-toastify";
+
+import { useAppDispatch } from "../redux/hooks";
+
+import { loginAccount, getUserProfile } from "../redux/reducers/user.reducer";
 
 import { FaSpotify } from "react-icons/fa";
 import { BiShowAlt, BiHide } from "react-icons/bi";
@@ -15,8 +21,40 @@ const Login = () => {
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
+  const dispatchAsync = useAppDispatch();
+
+  const navigate = useNavigate();
+
   const onSubmit = (data: any) => {
-    console.log("Submitted data:", data);
+    const account: { username: string; password: string } = {
+      username: data?.email,
+      password: data?.password,
+    };
+
+    const loginPromise = dispatchAsync(loginAccount(account));
+
+    loginPromise.then((res) => {
+      if (res.type === "users/loginAccount/fulfilled") {
+        // Get user profile
+        const profilePromise = dispatchAsync(getUserProfile());
+
+        profilePromise.then((res) => {
+          if (res.type === "users/getUserProfile/fulfilled") {
+            toast.success("Login successfully");
+            navigate("/");
+          }
+
+          if (res.type === "users/getUserProfile/rejected") {
+            toast.error("Get user profile failed");
+          }
+        });
+      }
+
+      if (res.type === "users/loginAccount/rejected") {
+        toast.error("Wrong username or password");
+      }
+    });
+
     resetField("email");
     resetField("password");
   };

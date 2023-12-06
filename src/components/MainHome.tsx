@@ -5,6 +5,9 @@ import { useAppDispatch } from "../redux/hooks";
 import { RootState } from "../redux/store";
 
 import { getAllAudios, getAllAlbums } from "../redux/reducers/media.reducer";
+import { handleAccessToken } from "../redux/reducers/user.reducer";
+
+import { axiosInterReq, axiosInterRes } from "../helpers/axios";
 
 import { Audio, Album } from "../types/media";
 
@@ -21,9 +24,13 @@ const MainHome = () => {
     (state) => state.media.albums
   );
 
+  axiosInterReq;
+  axiosInterRes;
+
   useEffect(() => {
     dispatchAsync(getAllAudios());
     dispatchAsync(getAllAlbums());
+    dispatchAsync(handleAccessToken());
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
