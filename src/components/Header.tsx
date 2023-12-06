@@ -4,7 +4,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
+import { FaUser } from "react-icons/fa";
+
 import { User } from "../types/user";
+
+import Dropdown from "./Dropdown";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -12,6 +16,8 @@ const Header = () => {
   const userProfile = useSelector<RootState, User | null>(
     (state) => state.user.profile
   );
+
+  const userDropDownItems = ["Profile", "Log out"];
 
   return (
     <div
@@ -35,10 +41,12 @@ const Header = () => {
           />
         </div>
       </div>
-      <div className="flex items-center gap-10">
+      <div className="flex items-center gap-5">
         {userProfile ? (
           <>
             <p>{userProfile.username}</p>
+
+            <Dropdown icon={<FaUser />} items={userDropDownItems} />
           </>
         ) : (
           <>
