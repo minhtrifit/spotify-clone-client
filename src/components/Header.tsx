@@ -11,6 +11,7 @@ import {
   IoAdd,
 } from "react-icons/io5";
 import { FaChevronDown } from "react-icons/fa";
+import { CiEdit } from "react-icons/ci";
 import { FaMicrophoneLines } from "react-icons/fa6";
 import { RiFolderUserFill } from "react-icons/ri";
 import { LuLogOut, LuAlbum } from "react-icons/lu";
@@ -36,26 +37,63 @@ const Header = () => {
     {
       label: "Profile",
       icon: <RiFolderUserFill />,
+      roles: ["ROLE_USER", "ROLE_ADMIN"],
     },
-    { label: "Log out", icon: <LuLogOut /> },
+    {
+      label: "Log out",
+      icon: <LuLogOut />,
+      roles: ["ROLE_USER", "ROLE_ADMIN"],
+    },
   ];
 
   const addDropDownItems = [
     {
       label: "Add new artist",
       icon: <FaMicrophoneLines />,
+      type: "Artist",
+      roles: ["ROLE_ADMIN"],
+    },
+    {
+      label: "Management",
+      icon: <CiEdit />,
+      type: "Artist",
+      roles: ["ROLE_ADMIN"],
     },
     {
       label: "Add new audio",
       icon: <MdAudiotrack />,
+      type: "Audio",
+      roles: ["ROLE_ADMIN"],
+    },
+    {
+      label: "Management",
+      icon: <CiEdit />,
+      type: "Audio",
+      roles: ["ROLE_ADMIN"],
     },
     {
       label: "Add new album",
       icon: <LuAlbum />,
+      type: "Album",
+      roles: ["ROLE_ADMIN"],
+    },
+    {
+      label: "Management",
+      icon: <CiEdit />,
+      type: "Album",
+      roles: ["ROLE_ADMIN"],
     },
     {
       label: "Add new playlist",
       icon: <MdOutlinePlaylistAdd />,
+      type: "Playlist",
+      roles: ["ROLE_USER", "ROLE_ADMIN"],
+    },
+    {
+      label: "Management",
+      icon: <CiEdit />,
+      type: "Playlist",
+      roles: ["ROLE_ADMIN"],
     },
   ];
 

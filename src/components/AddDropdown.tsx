@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+
+import { User } from "../types/user";
+
 interface ItemType {
   label: string;
   icon: React.ReactNode;
+  type: string;
+  roles: string[];
 }
 
 interface PropType {
@@ -16,6 +23,17 @@ const AddDropdown = (props: PropType) => {
   const { icon, items, setOpenAddArtistModal } = props;
 
   const [show, setShow] = useState<boolean>(false);
+
+  const userProfile = useSelector<RootState, User | null>(
+    (state) => state.user.profile
+  );
+
+  const types = [
+    { label: "Artist", roles: ["ROLE_ADMIN"] },
+    { label: "Audio", roles: ["ROLE_ADMIN"] },
+    { label: "Album", roles: ["ROLE_ADMIN"] },
+    { label: "Playlist", roles: ["ROLE_USER", "ROLE_ADMIN"] },
+  ];
 
   // Define the click event handler type
   type ClickEventHandler = (event: MouseEvent) => void;
@@ -45,8 +63,10 @@ const AddDropdown = (props: PropType) => {
     }
   };
 
-  const handleActiveItem = (name: string) => {
-    if (name === "Add new artist") {
+  const handleActiveItem = (name: string, type: string) => {
+    console.log(name, type);
+
+    if (name === "Add new artist" && type === "Artist") {
       setOpenAddArtistModal(true);
     }
   };
@@ -68,21 +88,35 @@ const AddDropdown = (props: PropType) => {
           show ? "flex" : "hidden"
         }`}
       >
-        {items?.map((item) => {
-          return (
-            <div
-              key={uuidv4()}
-              className={`dropdown-items w-[100%] flex items-center justify-between px-4 py-2 hover:bg-[#353535] hover:cursor-pointer ${
-                item.label === "Log out" && "text-red-500"
-              }`}
-              onClick={() => {
-                handleActiveItem(item.label);
-              }}
-            >
-              <p>{item.label}</p>
-              <p>{item.icon}</p>
-            </div>
-          );
+        {types.map((t) => {
+          if (userProfile?.roles && t.roles.includes(userProfile?.roles))
+            return (
+              <div key={uuidv4()} className="w-[100%] my-1">
+                <p className="self-start px-4 text-[15px] text-[#727272]">
+                  {t.label}
+                </p>
+                {items?.map((item) => {
+                  if (
+                    userProfile?.roles &&
+                    item.roles.includes(userProfile?.roles) &&
+                    item.type === t.label
+                  ) {
+                    return (
+                      <div
+                        key={uuidv4()}
+                        className={`dropdown-items w-[100%] flex items-center justify-between px-4 py-2 hover:bg-[#353535] hover:cursor-pointer`}
+                        onClick={() => {
+                          handleActiveItem(item.label, item.type);
+                        }}
+                      >
+                        <p>{item.label}</p>
+                        <p>{item.icon}</p>
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            );
         })}
       </div>
     </div>

@@ -13,6 +13,7 @@ import { User } from "../types/user";
 interface ItemType {
   label: string;
   icon: React.ReactNode;
+  roles: string[];
 }
 
 interface PropType {
