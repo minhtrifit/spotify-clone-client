@@ -17,10 +17,11 @@ interface PropType {
   icon: React.ReactNode;
   items: ItemType[];
   setOpenAddArtistModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenAddAudioModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AddDropdown = (props: PropType) => {
-  const { icon, items, setOpenAddArtistModal } = props;
+  const { icon, items, setOpenAddArtistModal, setOpenAddAudioModal } = props;
 
   const [show, setShow] = useState<boolean>(false);
 
@@ -68,6 +69,10 @@ const AddDropdown = (props: PropType) => {
 
     if (name === "Add new artist" && type === "Artist") {
       setOpenAddArtistModal(true);
+    }
+
+    if (name === "Add new audio" && type === "Audio") {
+      setOpenAddAudioModal(true);
     }
   };
 

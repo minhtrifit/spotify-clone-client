@@ -137,7 +137,7 @@ const AddArtistModal = (props: PropType) => {
           className="w-[400px] md:w-[500px] p-4"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <div className="mt-10 flex flex-col items-center">
+          <div className="flex flex-col items-center">
             <div className="w-[100%] h-[120px] flex flex-col gap-3">
               <p className="text-sm font-semibold">Name</p>
               <input

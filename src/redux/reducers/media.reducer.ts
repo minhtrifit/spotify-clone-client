@@ -23,6 +23,7 @@ interface MediaState {
   targetAlbum: Audio | null;
   detailAlbum: Album | null;
   isPlayingAlbum: boolean;
+  artists: Artist[];
 }
 
 // createAsyncThunk middleware
@@ -159,6 +160,65 @@ export const addNewArtist = createAsyncThunk(
   }
 );
 
+export const getAllArtists = createAsyncThunk(
+  "artists/getAllArtists",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get<Artist[]>(
+        `${import.meta.env.VITE_API_URL}/api/v1/artists`,
+        {
+          signal: thunkAPI.signal,
+        }
+      );
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.name === "AxiosError") {
+        return thunkAPI.rejectWithValue({ message: "Get artists failed" });
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const addNewAudio = createAsyncThunk(
+  "audios/addNewAudio",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (audio: Audio, thunkAPI) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/add/audio`,
+          {
+            name: audio.name,
+            avatar: audio.avatar,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 // InitialState value
 const initialState: MediaState = {
   currentId: "",
@@ -172,6 +232,7 @@ const initialState: MediaState = {
   detailAlbum: null,
   isPlayingAlbum: false,
   targetAlbum: null,
+  artists: [],
 };
 
 const mediaReducer = createReducer(initialState, (builder) => {
@@ -255,6 +316,10 @@ const mediaReducer = createReducer(initialState, (builder) => {
     .addCase(updateIsPlayingAlbum, (state, action) => {
       const value: any = action.payload;
       state.isPlayingAlbum = value;
+    })
+
+    .addCase(getAllArtists.fulfilled, (state, action) => {
+      console.log(action.payload);
     });
 });
 

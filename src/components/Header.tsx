@@ -23,6 +23,7 @@ import UserDropdown from "./UserDropdown";
 import AddDropdown from "./AddDropdown";
 
 import AddArtistModal from "./AddArtistModal";
+import AddAudioModal from "./AddAudioModal";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const Header = () => {
   );
 
   const [openAddArtistModal, setOpenAddArtistModal] = useState<boolean>(false);
+  const [openAddAudioModal, setOpenAddAudioModal] = useState<boolean>(false);
 
   const userDropDownItems = [
     {
@@ -126,11 +128,17 @@ const Header = () => {
               icon={<IoAdd id="add" />}
               items={addDropDownItems}
               setOpenAddArtistModal={setOpenAddArtistModal}
+              setOpenAddAudioModal={setOpenAddAudioModal}
             />
 
             <AddArtistModal
               openAddArtistModal={openAddArtistModal}
               setOpenAddArtistModal={setOpenAddArtistModal}
+            />
+
+            <AddAudioModal
+              openAddAudioModal={openAddAudioModal}
+              setOpenAddAudioModal={setOpenAddAudioModal}
             />
 
             <UserDropdown
