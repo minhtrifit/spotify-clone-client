@@ -5,17 +5,29 @@ import { useNavigate } from "react-router-dom";
 
 import { toast } from "react-toastify";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+
+import { User } from "../types/user";
+
+interface ItemType {
+  label: string;
+  icon: React.ReactNode;
+}
 
 interface PropType {
   icon: React.ReactNode;
-  items: string[];
+  items: ItemType[];
 }
 
 const UserDropdown = (props: PropType) => {
   const { icon, items } = props;
 
   const [show, setShow] = useState<boolean>(false);
+
+  const userProfile = useSelector<RootState, User | null>(
+    (state) => state.user.profile
+  );
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -59,13 +71,13 @@ const UserDropdown = (props: PropType) => {
   return (
     <div className="relative">
       <div
-        className="user-dropdown-menu w-[40px] h-[40px] p-2 flex items-center justify-center rounded-full border border-solid
-                    hover:cursor-pointer hover:scale-105"
+        className="user-dropdown-menu h-[40px] p-2 flex items-center justify-center gap-3 hover:cursor-pointer hover:text-[#1ed760]"
         onClick={() => {
           setShow(!show);
         }}
       >
-        {icon}
+        <div className="user-dropdown-menu">{userProfile?.username}</div>
+        <p className="user-dropdown-menu">{icon}</p>
       </div>
 
       <div
@@ -77,14 +89,15 @@ const UserDropdown = (props: PropType) => {
           return (
             <div
               key={uuidv4()}
-              className={`dropdown-items w-[100%] px-4 py-2 hover:bg-[#353535] hover:cursor-pointer ${
-                item === "Log out" && "text-red-500"
+              className={`dropdown-items w-[100%] flex items-center justify-between px-4 py-2 hover:bg-[#353535] hover:cursor-pointer ${
+                item.label === "Log out" && "text-red-500"
               }`}
               onClick={() => {
-                handleActiveItem(item);
+                handleActiveItem(item.label);
               }}
             >
-              {item}
+              <p>{item.label}</p>
+              <p>{item.icon}</p>
             </div>
           );
         })}

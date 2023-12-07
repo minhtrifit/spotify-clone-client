@@ -10,7 +10,11 @@ import {
   IoChevronForwardOutline,
   IoAdd,
 } from "react-icons/io5";
-import { FaUser } from "react-icons/fa";
+import { FaChevronDown } from "react-icons/fa";
+import { FaMicrophoneLines } from "react-icons/fa6";
+import { RiFolderUserFill } from "react-icons/ri";
+import { LuLogOut, LuAlbum } from "react-icons/lu";
+import { MdOutlinePlaylistAdd, MdAudiotrack } from "react-icons/md";
 
 import { User } from "../types/user";
 
@@ -28,11 +32,31 @@ const Header = () => {
 
   const [openAddArtistModal, setOpenAddArtistModal] = useState<boolean>(false);
 
-  const userDropDownItems = ["Profile", "Log out"];
+  const userDropDownItems = [
+    {
+      label: "Profile",
+      icon: <RiFolderUserFill />,
+    },
+    { label: "Log out", icon: <LuLogOut /> },
+  ];
+
   const addDropDownItems = [
-    "Add new artist",
-    "Add new album",
-    "Add new playlist",
+    {
+      label: "Add new artist",
+      icon: <FaMicrophoneLines />,
+    },
+    {
+      label: "Add new audio",
+      icon: <MdAudiotrack />,
+    },
+    {
+      label: "Add new album",
+      icon: <LuAlbum />,
+    },
+    {
+      label: "Add new playlist",
+      icon: <MdOutlinePlaylistAdd />,
+    },
   ];
 
   return (
@@ -60,10 +84,8 @@ const Header = () => {
       <div className="flex items-center gap-5">
         {userProfile ? (
           <>
-            <p>{userProfile.username}</p>
-
             <AddDropdown
-              icon={<IoAdd id={"add"} />}
+              icon={<IoAdd id="add" />}
               items={addDropDownItems}
               setOpenAddArtistModal={setOpenAddArtistModal}
             />
@@ -74,7 +96,7 @@ const Header = () => {
             />
 
             <UserDropdown
-              icon={<FaUser id="user" />}
+              icon={<FaChevronDown id="user" />}
               items={userDropDownItems}
             />
           </>

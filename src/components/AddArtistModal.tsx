@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Modal from "react-modal";
 import { useForm } from "react-hook-form";
 
@@ -37,8 +38,22 @@ const customStyles = {
 const AddArtistModal = (props: PropType) => {
   const { openAddArtistModal, setOpenAddArtistModal } = props;
 
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const dispatchAsync = useAppDispatch();
   const dispatch = useDispatch();
+
+  const handlePreviewImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result as string);
+    };
+
+    reader.readAsDataURL(file);
+  };
 
   const closeModal = () => {
     setOpenAddArtistModal(false);
@@ -94,6 +109,7 @@ const AddArtistModal = (props: PropType) => {
 
     resetField("name");
     resetField("picture");
+    setPreviewImage("");
   };
 
   const {
@@ -143,8 +159,14 @@ const AddArtistModal = (props: PropType) => {
               <p className="text-sm font-semibold">Avatar</p>
               <input
                 type="file"
+                className="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                file:text-sm file:font-semibold file:bg-[#1ed760] file:text-black hover:file:bg-[#19fa6a]
+                file:disabled:opacity-50 file:disabled:pointer-events-none"
                 {...register("picture", {
                   required: "Avatar is required",
+                  onChange: (e) => {
+                    handlePreviewImage(e);
+                  },
                 })}
               />
               {errors?.picture?.message && (
@@ -153,6 +175,16 @@ const AddArtistModal = (props: PropType) => {
                 </p>
               )}
             </div>
+
+            {previewImage && (
+              <div className="w-[100%] h-[100px] flex flex-col gap-3">
+                <img
+                  src={previewImage}
+                  alt="preview"
+                  className="max-w-[100px]"
+                />
+              </div>
+            )}
 
             <button
               type="submit"

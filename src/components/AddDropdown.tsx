@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
+interface ItemType {
+  label: string;
+  icon: React.ReactNode;
+}
+
 interface PropType {
   icon: React.ReactNode;
-  items: string[];
+  items: ItemType[];
   setOpenAddArtistModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -55,7 +60,7 @@ const AddDropdown = (props: PropType) => {
           setShow(!show);
         }}
       >
-        {icon}
+        <p className="user-dropdown-menu">{icon}</p>
       </div>
 
       <div
@@ -67,14 +72,15 @@ const AddDropdown = (props: PropType) => {
           return (
             <div
               key={uuidv4()}
-              className={`dropdown-items w-[100%] px-4 py-2 hover:bg-[#353535] hover:cursor-pointer ${
-                item === "Log out" && "text-red-500"
+              className={`dropdown-items w-[100%] flex items-center justify-between px-4 py-2 hover:bg-[#353535] hover:cursor-pointer ${
+                item.label === "Log out" && "text-red-500"
               }`}
               onClick={() => {
-                handleActiveItem(item);
+                handleActiveItem(item.label);
               }}
             >
-              {item}
+              <p>{item.label}</p>
+              <p>{item.icon}</p>
             </div>
           );
         })}
