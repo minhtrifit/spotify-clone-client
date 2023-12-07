@@ -1,14 +1,23 @@
+import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 
-import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
+import {
+  IoChevronBackOutline,
+  IoChevronForwardOutline,
+  IoAdd,
+} from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 
 import { User } from "../types/user";
 
-import Dropdown from "./Dropdown";
+import UserDropdown from "./UserDropdown";
+import AddDropdown from "./AddDropdown";
+
+import AddArtistModal from "./AddArtistModal";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -17,7 +26,14 @@ const Header = () => {
     (state) => state.user.profile
   );
 
+  const [openAddArtistModal, setOpenAddArtistModal] = useState<boolean>(false);
+
   const userDropDownItems = ["Profile", "Log out"];
+  const addDropDownItems = [
+    "Add new artist",
+    "Add new album",
+    "Add new playlist",
+  ];
 
   return (
     <div
@@ -46,7 +62,21 @@ const Header = () => {
           <>
             <p>{userProfile.username}</p>
 
-            <Dropdown icon={<FaUser />} items={userDropDownItems} />
+            <AddDropdown
+              icon={<IoAdd id={"add"} />}
+              items={addDropDownItems}
+              setOpenAddArtistModal={setOpenAddArtistModal}
+            />
+
+            <AddArtistModal
+              openAddArtistModal={openAddArtistModal}
+              setOpenAddArtistModal={setOpenAddArtistModal}
+            />
+
+            <UserDropdown
+              icon={<FaUser id="user" />}
+              items={userDropDownItems}
+            />
           </>
         ) : (
           <>

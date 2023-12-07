@@ -8,7 +8,7 @@ export interface Audio {
 }
 
 export interface Artist {
-  id: number;
+  id?: number;
   name: string;
   followers?: number;
   avatar?: string;

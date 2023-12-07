@@ -1,6 +1,9 @@
 import { createReducer, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+
 import { User } from "../../types/user";
+
+import { logoutAccount } from "../actions/user.action";
 
 // Interface declair
 interface UserState {
@@ -28,7 +31,7 @@ export const loginAccount = createAsyncThunk(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.name === "AxiosError") {
-        return thunkAPI.rejectWithValue({ message: "Add products failed" });
+        return thunkAPI.rejectWithValue({ message: "Login account failed" });
       }
       return thunkAPI.rejectWithValue(error);
     }
@@ -152,6 +155,13 @@ const userReducer = createReducer(initialState, (builder) => {
 
         state.profile = data;
       }
+    })
+
+    .addCase(logoutAccount, (state) => {
+      state.profile = null;
+      state.accessToken = "";
+      state.refreshToken = "";
+      sessionStorage.clear();
     });
 });
 

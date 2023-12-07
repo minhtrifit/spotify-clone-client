@@ -8,7 +8,7 @@ import {
   updateTargetAlbum,
 } from "../actions/media.action";
 
-import { Audio, Album } from "../../types/media";
+import { Audio, Album, Artist } from "../../types/media";
 
 // Interface declair
 interface MediaState {
@@ -119,6 +119,41 @@ export const getAlbumById = createAsyncThunk(
       if (error.name === "AxiosError") {
         return thunkAPI.rejectWithValue({ message: "Get album failed" });
       }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const addNewArtist = createAsyncThunk(
+  "artists/addNewArtist",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (artist: Artist, thunkAPI) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/add/artist`,
+          {
+            name: artist.name,
+            avatar: artist.avatar,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       return thunkAPI.rejectWithValue(error);
     }
   }
