@@ -1,5 +1,5 @@
 export interface Audio {
-  id: number;
+  id?: number;
   name: string;
   artists?: Artist[];
   albums?: Album[];

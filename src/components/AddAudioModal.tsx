@@ -7,12 +7,17 @@ import { toast } from "react-toastify";
 import { IoMdClose } from "react-icons/io";
 
 import { useAppDispatch } from "../redux/hooks";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
-import { Artist } from "../types/media";
+import { Album, Artist, Audio } from "../types/media";
 
-import { uploadImage } from "../redux/reducers/upload.reducer";
-import { addNewArtist, getAllArtists } from "../redux/reducers/media.reducer";
+import { uploadImage, uploadAudio } from "../redux/reducers/upload.reducer";
+import {
+  addNewAudio,
+  getAllArtists,
+  getAllAudios,
+} from "../redux/reducers/media.reducer";
 
 interface PropType {
   openAddAudioModal: boolean;
@@ -24,7 +29,7 @@ const customStyles = {
     backgroundColor: "rgba(0, 0, 0, 0.65)",
   },
   content: {
-    top: "40%",
+    top: "50%",
     left: "50%",
     right: "auto",
     bottom: "auto",
@@ -47,12 +52,16 @@ const AddAudioModal = (props: PropType) => {
   } = useForm();
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [artistOption, setArtistOption] = useState<any[]>([]);
+  const [albumOption, setAlbumOption] = useState<any[]>([]);
 
-  const options = [
-    { value: "chocolate", label: "Chocolate" },
-    { value: "strawberry", label: "Strawberry" },
-    { value: "vanilla", label: "Vanilla" },
-  ];
+  const artistList = useSelector<RootState, Artist[]>(
+    (state) => state.media.artists
+  );
+
+  const albumList = useSelector<RootState, Album[]>(
+    (state) => state.media.albums
+  );
 
   const dispatchAsync = useAppDispatch();
   const dispatch = useDispatch();
@@ -74,8 +83,9 @@ const AddAudioModal = (props: PropType) => {
   };
 
   const onSubmit = (data: any) => {
-    console.log(data);
     const name = data.name;
+    const artists = data.artists;
+    const albums = data.albums;
     const audio = data.audio;
     const picture = data.picture;
 
@@ -86,49 +96,79 @@ const AddAudioModal = (props: PropType) => {
     pictureFormData.append("file", picture[0]);
 
     // Update audio
+    const uploadAudioPromise = dispatchAsync(uploadAudio(audioFormData));
 
     // Update image
-    // const uploadImagePromise = dispatchAsync(uploadImage(pictureFormData));
+    const uploadImagePromise = dispatchAsync(uploadImage(pictureFormData));
 
-    // uploadImagePromise.then((res) => {
-    //   if (res.type === "uploads/uploadImage/fulfilled") {
-    //     const imageUrl = `${import.meta.env.VITE_API_URL}/upload/files/${
-    //       res.payload.data
-    //     }`;
+    uploadAudioPromise.then((res) => {
+      // Upload audio successfully
+      if (res.type === "uploads/uploadAudio/fulfilled") {
+        const audioData = res.payload.url.webContentLink
+          .split("/")[3]
+          .split("=")[1]
+          .split("&")[0];
 
-    //     // Update full image url: http://localhost:8080/upload/files/res.payload.data
-    //     dispatch({ type: "upload/updateImageUrl", payload: imageUrl });
+        const audioUrl = `http://docs.google.com/uc?export=open&id=${audioData}`;
 
-    //     const newArtist: Artist = {
-    //       name: name,
-    //       avatar: imageUrl,
-    //     };
+        // Update full audio url: http://docs.google.com/uc?export=open&id=audioData
+        dispatch({ type: "upload/updateAudioUrl", payload: audioUrl });
 
-    //     // Add new artist
-    //     const addNewArtistPromise = dispatchAsync(addNewArtist(newArtist));
+        uploadImagePromise.then((res) => {
+          // Upload image successfully
+          if (res.type === "uploads/uploadImage/fulfilled") {
+            const imageUrl = `${import.meta.env.VITE_API_URL}/upload/files/${
+              res.payload.data
+            }`;
 
-    //     addNewArtistPromise.then((res) => {
-    //       if (res.type === "artists/addNewArtist/fulfilled") {
-    //         toast.success("Add new artist successfully");
+            // Update full image url: http://localhost:8080/upload/files/res.payload.data
+            dispatch({ type: "upload/updateImageUrl", payload: imageUrl });
 
-    //         // Reset image url state
-    //         dispatch({ type: "upload/updateImageUrl", payload: "" });
+            const newAudio: Audio = {
+              name: name,
+              artists: artists.map(
+                (a: { value: string; label: string }) => a.value
+              ),
+              albums: albums.map(
+                (a: { value: string; label: string }) => a.value
+              ),
+              avatar: imageUrl,
+              url: audioUrl,
+            };
 
-    //         setOpenAddAudioModal(false);
-    //       }
+            // Add new audio
+            const addNewAudioPromise = dispatchAsync(addNewAudio(newAudio));
 
-    //       if (res.type === "artists/addNewArtist/rejected") {
-    //         toast.error("Add new artist failed");
-    //       }
-    //     });
-    //   }
+            addNewAudioPromise.then((res) => {
+              if (res.type === "audios/addNewAudio/fulfilled") {
+                toast.success("Add new audio successfully");
 
-    //   if (res.type === "uploads/uploadImage/rejected") {
-    //     toast.error("Upload avatar failed");
-    //   }
-    // });
+                // Reset url state
+                dispatch({ type: "upload/updateImageUrl", payload: "" });
+                dispatch({ type: "upload/updateAudioUrl", payload: "" });
+
+                setOpenAddAudioModal(false);
+
+                // Upload new audio list
+                dispatchAsync(getAllAudios());
+              }
+
+              if (res.type === "audios/addNewAudio/rejected") {
+                toast.error("Add new audio failed");
+              }
+            });
+          }
+
+          if (res.type === "uploads/uploadImage/rejected") {
+            toast.error("Upload avatar failed");
+          }
+        });
+      }
+    });
 
     resetField("name");
+    resetField("artists");
+    resetField("albums");
     resetField("audio");
     resetField("picture");
     setPreviewImage("");
@@ -136,9 +176,30 @@ const AddAudioModal = (props: PropType) => {
 
   useEffect(() => {
     dispatchAsync(getAllArtists());
+    dispatchAsync(getAllAudios());
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (artistList.length !== 0) {
+      const data = artistList?.map((artist) => {
+        return { value: artist.id, label: artist.name };
+      });
+
+      setArtistOption(data);
+    }
+  }, [artistList]);
+
+  useEffect(() => {
+    if (albumList.length !== 0) {
+      const data = albumList?.map((artist) => {
+        return { value: artist.id, label: artist.name };
+      });
+
+      setAlbumOption(data);
+    }
+  }, [albumList]);
 
   return (
     <Modal
@@ -155,7 +216,7 @@ const AddAudioModal = (props: PropType) => {
         <p className="text-2xl font-bold text-center ">Add New Audio</p>
 
         <form
-          className="w-[400px] md:w-[500px] p-4"
+          className="w-[400px] md:w-[500px] px-4"
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="flex flex-col items-center">
@@ -191,7 +252,7 @@ const AddAudioModal = (props: PropType) => {
                       isMulti
                       ref={ref}
                       name={name}
-                      options={options}
+                      options={artistOption}
                       value={value}
                       onChange={onChange}
                       styles={{
@@ -218,42 +279,107 @@ const AddAudioModal = (props: PropType) => {
             </div>
 
             <div className="w-[100%] h-[120px] flex flex-col gap-3">
-              <p className="text-sm font-semibold">Audio</p>
-              <input
-                type="file"
-                className="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0
-                file:text-sm file:font-semibold file:bg-[#1ed760] file:text-black hover:file:bg-[#19fa6a]
-                file:disabled:opacity-50 file:disabled:pointer-events-none"
-                {...register("audio", {
-                  required: "Audio is required",
-                })}
+              <p className="text-sm font-semibold">Albums</p>
+              <Controller
+                control={control}
+                name="albums"
+                rules={{ required: "Album is required" }}
+                render={({
+                  field: { onChange, value, name, ref },
+                  fieldState: { error },
+                }) => (
+                  <>
+                    <Select
+                      isMulti
+                      ref={ref}
+                      name={name}
+                      options={albumOption}
+                      value={value}
+                      onChange={onChange}
+                      styles={{
+                        control: (baseStyles, state) => ({
+                          ...baseStyles,
+                          borderColor: state.isFocused
+                            ? "#1ed760"
+                            : "rgb(107 114 128)",
+                          backgroundColor: "#242424",
+                        }),
+                        option: (provided, state) => ({
+                          ...provided,
+                          backgroundColor: state.isFocused ? "#f1f1f1" : "#fff",
+                          color: state.isFocused ? "#000" : "#333",
+                        }),
+                      }}
+                    />
+                    {error?.message && (
+                      <p className="text-red-500">{error.message.toString()}</p>
+                    )}
+                  </>
+                )}
               />
-              {errors?.audio?.message && (
-                <p className="text-red-500">
-                  {errors.audio.message.toString()}
-                </p>
-              )}
             </div>
 
-            <div className="w-[100%] h-[120px] flex flex-col gap-3">
-              <p className="text-sm font-semibold">Avatar</p>
-              <input
-                type="file"
-                className="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+            <div className="w-[100%] flex gap-5 justify-between">
+              <div className="w-[100%] h-[120px] flex flex-col gap-3">
+                <p className="text-sm font-semibold">Audio</p>
+                <input
+                  type="file"
+                  className="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0
                 file:text-sm file:font-semibold file:bg-[#1ed760] file:text-black hover:file:bg-[#19fa6a]
                 file:disabled:opacity-50 file:disabled:pointer-events-none"
-                {...register("picture", {
-                  required: "Avatar is required",
-                  onChange: (e) => {
-                    handlePreviewImage(e);
-                  },
-                })}
-              />
-              {errors?.picture?.message && (
-                <p className="text-red-500">
-                  {errors.picture.message.toString()}
-                </p>
-              )}
+                  {...register("audio", {
+                    required: "Audio is required",
+                    validate: (value) => {
+                      const acceptedFormats = ["mp3"];
+                      const fileExtension = value[0]?.name
+                        .split(".")
+                        .pop()
+                        .toLowerCase();
+                      if (!acceptedFormats.includes(fileExtension)) {
+                        return "Invalid file format. Only audio files are allowed.";
+                      }
+                      return true;
+                    },
+                  })}
+                />
+                {errors?.audio?.message && (
+                  <p className="text-red-500">
+                    {errors.audio.message.toString()}
+                  </p>
+                )}
+              </div>
+
+              <div className="w-[100%] h-[120px] flex flex-col gap-3">
+                <p className="text-sm font-semibold">Avatar</p>
+                <input
+                  type="file"
+                  className="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                file:text-sm file:font-semibold file:bg-[#1ed760] file:text-black hover:file:bg-[#19fa6a]
+                file:disabled:opacity-50 file:disabled:pointer-events-none"
+                  {...register("picture", {
+                    required: "Avatar is required",
+                    validate: (value) => {
+                      const acceptedFormats = ["png", "jpg", "jpeg"];
+                      const fileExtension = value[0]?.name
+                        .split(".")
+                        .pop()
+                        .toLowerCase();
+                      if (!acceptedFormats.includes(fileExtension)) {
+                        return "Invalid file format. Only image files are allowed.";
+                      }
+                      return true;
+                    },
+                    onChange: (e) => {
+                      handlePreviewImage(e);
+                    },
+                  })}
+                />
+                {errors?.picture?.message && (
+                  <p className="text-red-500">
+                    {errors.picture.message.toString()}
+                  </p>
+                )}
+              </div>
             </div>
 
             {previewImage && (

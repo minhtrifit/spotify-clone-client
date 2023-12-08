@@ -20,7 +20,7 @@ interface MediaState {
   detailAudio: Audio | null;
   isPlayingAudio: boolean;
   albums: Album[];
-  targetAlbum: Audio | null;
+  targetAlbum: Album | null;
   detailAlbum: Album | null;
   isPlayingAlbum: boolean;
   artists: Artist[];
@@ -200,6 +200,9 @@ export const addNewAudio = createAsyncThunk(
           `${import.meta.env.VITE_API_URL}/api/v1/add/audio`,
           {
             name: audio.name,
+            artists: audio.artists,
+            albums: audio.albums,
+            url: audio.url,
             avatar: audio.avatar,
           },
           {
@@ -319,7 +322,8 @@ const mediaReducer = createReducer(initialState, (builder) => {
     })
 
     .addCase(getAllArtists.fulfilled, (state, action) => {
-      console.log(action.payload);
+      const payload: any = action.payload;
+      state.artists = payload.data;
     });
 });
 

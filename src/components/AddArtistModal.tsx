@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import { Artist } from "../types/media";
 
 import { uploadImage } from "../redux/reducers/upload.reducer";
-import { addNewArtist } from "../redux/reducers/media.reducer";
+import { getAllArtists, addNewArtist } from "../redux/reducers/media.reducer";
 
 interface PropType {
   openAddArtistModal: boolean;
@@ -94,6 +94,9 @@ const AddArtistModal = (props: PropType) => {
             dispatch({ type: "upload/updateImageUrl", payload: "" });
 
             setOpenAddArtistModal(false);
+
+            // Update new artist list
+            dispatchAsync(getAllArtists());
           }
 
           if (res.type === "artists/addNewArtist/rejected") {
@@ -164,6 +167,17 @@ const AddArtistModal = (props: PropType) => {
                 file:disabled:opacity-50 file:disabled:pointer-events-none"
                 {...register("picture", {
                   required: "Avatar is required",
+                  validate: (value) => {
+                    const acceptedFormats = ["png", "jpg", "jpeg"];
+                    const fileExtension = value[0]?.name
+                      .split(".")
+                      .pop()
+                      .toLowerCase();
+                    if (!acceptedFormats.includes(fileExtension)) {
+                      return "Invalid file format. Only image files are allowed.";
+                    }
+                    return true;
+                  },
                   onChange: (e) => {
                     handlePreviewImage(e);
                   },

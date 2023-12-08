@@ -12,7 +12,7 @@ import { Album, Audio } from "../types/media";
 interface PropType {
   title: string;
   type: "audio" | "album" | "playlist";
-  list: Audio[];
+  list: Audio[] | Album[];
 }
 
 const MediaCard = (props: PropType) => {
@@ -110,7 +110,7 @@ const MediaCard = (props: PropType) => {
           })}
 
         {type === "album" &&
-          list?.map((item: Album, index: number) => {
+          list?.map((item: any, index: number) => {
             if (index <= 4)
               return (
                 <div
