@@ -160,6 +160,40 @@ export const addNewArtist = createAsyncThunk(
   }
 );
 
+export const deleteArtistById = createAsyncThunk(
+  "artists/deleteArtistById",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (id: number, thunkAPI) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/delete/artist/${id}`,
+          {
+            //
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const getAllArtists = createAsyncThunk(
   "artists/getAllArtists",
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -343,6 +377,16 @@ const mediaReducer = createReducer(initialState, (builder) => {
       state.isLoading = false;
     })
     .addCase(addNewAudio.rejected, (state) => {
+      state.isLoading = false;
+    })
+
+    .addCase(deleteArtistById.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(deleteArtistById.fulfilled, (state) => {
+      state.isLoading = false;
+    })
+    .addCase(deleteArtistById.rejected, (state) => {
       state.isLoading = false;
     });
 });

@@ -6,6 +6,9 @@ import MainHome from "./MainHome";
 import MainSearch from "./MainSearch";
 import DetailAudio from "../pages/DetailAudio";
 import DetailAlbum from "../pages/DetailAlbum";
+import Management from "../pages/Management";
+
+import ProtectedRoute from "./ProtectedRoute";
 
 const Content = () => {
   return (
@@ -17,6 +20,14 @@ const Content = () => {
           <Route path="/search" element={<MainSearch />} />
           <Route path="/audio/:id" element={<DetailAudio />} />
           <Route path="/album/:id" element={<DetailAlbum />} />
+          <Route
+            path="/management/:type"
+            element={
+              <ProtectedRoute roles={["ROLE_ADMIN"]}>
+                <Management />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </div>

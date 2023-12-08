@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 
 import { User } from "../types/user";
+import { useNavigate } from "react-router-dom";
 
 interface ItemType {
   label: string;
@@ -22,6 +23,8 @@ interface PropType {
 
 const AddDropdown = (props: PropType) => {
   const { icon, items, setOpenAddArtistModal, setOpenAddAudioModal } = props;
+
+  const navigate = useNavigate();
 
   const [show, setShow] = useState<boolean>(false);
 
@@ -65,8 +68,6 @@ const AddDropdown = (props: PropType) => {
   };
 
   const handleActiveItem = (name: string, type: string) => {
-    console.log(name, type);
-
     if (name === "Add new artist" && type === "Artist") {
       setOpenAddArtistModal(true);
     }
@@ -74,13 +75,17 @@ const AddDropdown = (props: PropType) => {
     if (name === "Add new audio" && type === "Audio") {
       setOpenAddAudioModal(true);
     }
+
+    if (name === "Management") {
+      navigate(`/management/${type.toLowerCase()}`);
+    }
   };
 
   return (
     <div className="relative">
       <div
         className="add-dropdown-menu w-[40px] h-[40px] p-2 flex items-center justify-center rounded-full border border-solid
-                    hover:cursor-pointer hover:scale-105"
+                    hover:cursor-pointer hover:scale-105 hover:border-[#1ed760] hover:text-[#1ed760]"
         onClick={() => {
           setShow(!show);
         }}
