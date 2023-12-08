@@ -7,6 +7,7 @@ import { updateImageUrl, updateAudioUrl } from "../actions/upload.action";
 interface UserState {
   imageUrl: string;
   audioUrl: string;
+  isLoading: boolean;
 }
 
 export const uploadImage = createAsyncThunk(
@@ -70,22 +71,38 @@ export const uploadAudio = createAsyncThunk(
 const initialState: UserState = {
   imageUrl: "",
   audioUrl: "",
+  isLoading: false,
 };
 
 const uploadReducer = createReducer(initialState, (builder) => {
   builder
+    .addCase(uploadImage.pending, (state) => {
+      state.isLoading = true;
+    })
     .addCase(uploadImage.fulfilled, (state, action) => {
       if (action.payload) {
         state.imageUrl = action.payload.data;
       }
+      state.isLoading = false;
     })
+    .addCase(uploadImage.rejected, (state) => {
+      state.isLoading = false;
+    })
+
     .addCase(updateImageUrl, (state, action) => {
       state.imageUrl = action.payload;
     })
 
+    .addCase(uploadAudio.pending, (state) => {
+      state.isLoading = true;
+    })
     .addCase(uploadAudio.fulfilled, (state, action) => {
       state.audioUrl = action.payload;
     })
+    .addCase(uploadAudio.rejected, (state) => {
+      state.isLoading = false;
+    })
+
     .addCase(updateAudioUrl, (state, action) => {
       state.audioUrl = action.payload;
     });

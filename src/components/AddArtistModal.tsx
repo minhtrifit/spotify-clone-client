@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
 
 import { useAppDispatch } from "../redux/hooks";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 import { toast } from "react-toastify";
 
@@ -39,6 +40,14 @@ const AddArtistModal = (props: PropType) => {
   const { openAddArtistModal, setOpenAddArtistModal } = props;
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const isUploading = useSelector<RootState, boolean>(
+    (state) => state.upload.isLoading
+  );
+
+  const isLoading = useSelector<RootState, boolean>(
+    (state) => state.media.isLoading
+  );
 
   const dispatchAsync = useAppDispatch();
   const dispatch = useDispatch();
@@ -205,7 +214,7 @@ const AddArtistModal = (props: PropType) => {
               className="mt-10 w-[45%] bg-[#1ed760] py-3 text-black font-semibold rounded-3xl
                       transform transition duration-200 hover:scale-105"
             >
-              Add
+              {isUploading || isLoading ? "Loading..." : "Add"}
             </button>
           </div>
         </form>

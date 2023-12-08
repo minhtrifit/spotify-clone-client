@@ -324,6 +324,26 @@ const mediaReducer = createReducer(initialState, (builder) => {
     .addCase(getAllArtists.fulfilled, (state, action) => {
       const payload: any = action.payload;
       state.artists = payload.data;
+    })
+
+    .addCase(addNewArtist.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(addNewArtist.fulfilled, (state) => {
+      state.isLoading = false;
+    })
+    .addCase(addNewArtist.rejected, (state) => {
+      state.isLoading = false;
+    })
+
+    .addCase(addNewAudio.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(addNewAudio.fulfilled, (state) => {
+      state.isLoading = false;
+    })
+    .addCase(addNewAudio.rejected, (state) => {
+      state.isLoading = false;
     });
 });
 

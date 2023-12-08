@@ -116,19 +116,15 @@ const userReducer = createReducer(initialState, (builder) => {
       state.isLoading = true;
     })
     .addCase(loginAccount.fulfilled, (state, action) => {
-      if (action.payload) {
-        const data: { accessToken: string; refreshToken: string } =
-          action.payload.data;
+      const data: { accessToken: string; refreshToken: string } =
+        action.payload.data;
 
-        state.accessToken = data.accessToken;
-        state.refreshToken = data.refreshToken;
+      state.accessToken = data.accessToken;
+      state.refreshToken = data.refreshToken;
 
-        sessionStorage.setItem("accessToken", JSON.stringify(data.accessToken));
-        sessionStorage.setItem(
-          "refreshToken",
-          JSON.stringify(data.refreshToken)
-        );
-      }
+      sessionStorage.setItem("accessToken", JSON.stringify(data.accessToken));
+      sessionStorage.setItem("refreshToken", JSON.stringify(data.refreshToken));
+
       state.isLoading = false;
     })
     .addCase(loginAccount.rejected, (state) => {
@@ -139,10 +135,9 @@ const userReducer = createReducer(initialState, (builder) => {
       state.isLoading = true;
     })
     .addCase(getUserProfile.fulfilled, (state, action) => {
-      if (action.payload) {
-        const userData: User = action.payload.data;
-        state.profile = userData;
-      }
+      const userData: User = action.payload.data;
+      state.profile = userData;
+
       state.isLoading = false;
     })
     .addCase(getUserProfile.rejected, (state) => {
@@ -150,10 +145,23 @@ const userReducer = createReducer(initialState, (builder) => {
     })
 
     .addCase(handleAccessToken.fulfilled, (state, action) => {
-      if (action.payload) {
-        const data: User = action.payload.data;
+      const data: User = action.payload.data;
 
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      const refreshToken = sessionStorage
+        .getItem("refreshToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (data && accessToken && refreshToken) {
         state.profile = data;
+
+        state.accessToken = accessToken;
+        state.refreshToken = refreshToken;
       }
     })
 

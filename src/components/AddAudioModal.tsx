@@ -63,6 +63,14 @@ const AddAudioModal = (props: PropType) => {
     (state) => state.media.albums
   );
 
+  const isUploading = useSelector<RootState, boolean>(
+    (state) => state.upload.isLoading
+  );
+
+  const isLoading = useSelector<RootState, boolean>(
+    (state) => state.media.isLoading
+  );
+
   const dispatchAsync = useAppDispatch();
   const dispatch = useDispatch();
 
@@ -397,7 +405,7 @@ const AddAudioModal = (props: PropType) => {
               className="mt-10 w-[45%] bg-[#1ed760] py-3 text-black font-semibold rounded-3xl
                       transform transition duration-200 hover:scale-105"
             >
-              Add
+              {isUploading || isLoading ? "Loading..." : "Add"}
             </button>
           </div>
         </form>
