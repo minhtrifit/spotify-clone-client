@@ -15,6 +15,7 @@ import { Album, Artist, Audio } from "../types/media";
 import { uploadImage, uploadAudio } from "../redux/reducers/upload.reducer";
 import {
   addNewAudio,
+  getAllAlbums,
   getAllArtists,
   getAllAudios,
 } from "../redux/reducers/media.reducer";
@@ -54,6 +55,7 @@ const AddAudioModal = (props: PropType) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [artistOption, setArtistOption] = useState<any[]>([]);
   const [albumOption, setAlbumOption] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const artistList = useSelector<RootState, Artist[]>(
     (state) => state.media.artists
@@ -61,14 +63,6 @@ const AddAudioModal = (props: PropType) => {
 
   const albumList = useSelector<RootState, Album[]>(
     (state) => state.media.albums
-  );
-
-  const isUploading = useSelector<RootState, boolean>(
-    (state) => state.upload.isLoading
-  );
-
-  const isLoading = useSelector<RootState, boolean>(
-    (state) => state.media.isLoading
   );
 
   const dispatchAsync = useAppDispatch();
@@ -102,6 +96,8 @@ const AddAudioModal = (props: PropType) => {
 
     const pictureFormData = new FormData();
     pictureFormData.append("file", picture[0]);
+
+    setIsLoading(true);
 
     // Update audio
     const uploadAudioPromise = dispatchAsync(uploadAudio(audioFormData));
@@ -149,6 +145,8 @@ const AddAudioModal = (props: PropType) => {
 
             addNewAudioPromise.then((res) => {
               if (res.type === "audios/addNewAudio/fulfilled") {
+                setIsLoading(false);
+
                 toast.success("Add new audio successfully");
 
                 // Reset url state
@@ -163,12 +161,14 @@ const AddAudioModal = (props: PropType) => {
 
               if (res.type === "audios/addNewAudio/rejected") {
                 toast.error("Add new audio failed");
+                setIsLoading(false);
               }
             });
           }
 
           if (res.type === "uploads/uploadImage/rejected") {
             toast.error("Upload avatar failed");
+            setIsLoading(false);
           }
         });
       }
@@ -185,6 +185,7 @@ const AddAudioModal = (props: PropType) => {
   useEffect(() => {
     dispatchAsync(getAllArtists());
     dispatchAsync(getAllAudios());
+    dispatchAsync(getAllAlbums());
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -405,7 +406,7 @@ const AddAudioModal = (props: PropType) => {
               className="mt-10 w-[45%] bg-[#1ed760] py-3 text-black font-semibold rounded-3xl
                       transform transition duration-200 hover:scale-105"
             >
-              {isUploading || isLoading ? "Loading..." : "Add"}
+              {isLoading ? "Loading..." : "Add"}
             </button>
           </div>
         </form>

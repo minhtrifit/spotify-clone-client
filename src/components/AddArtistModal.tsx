@@ -5,8 +5,7 @@ import { useForm } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
 
 import { useAppDispatch } from "../redux/hooks";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { useDispatch } from "react-redux";
 
 import { toast } from "react-toastify";
 
@@ -40,14 +39,7 @@ const AddArtistModal = (props: PropType) => {
   const { openAddArtistModal, setOpenAddArtistModal } = props;
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-
-  const isUploading = useSelector<RootState, boolean>(
-    (state) => state.upload.isLoading
-  );
-
-  const isLoading = useSelector<RootState, boolean>(
-    (state) => state.media.isLoading
-  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const dispatchAsync = useAppDispatch();
   const dispatch = useDispatch();
@@ -75,6 +67,8 @@ const AddArtistModal = (props: PropType) => {
     const formData = new FormData();
     formData.append("file", picture[0]);
 
+    setIsLoading(true);
+
     // Update image
     const uploadImagePromise = dispatchAsync(uploadImage(formData));
 
@@ -97,6 +91,8 @@ const AddArtistModal = (props: PropType) => {
 
         addNewArtistPromise.then((res) => {
           if (res.type === "artists/addNewArtist/fulfilled") {
+            setIsLoading(false);
+
             toast.success("Add new artist successfully");
 
             // Reset image url state
@@ -110,12 +106,14 @@ const AddArtistModal = (props: PropType) => {
 
           if (res.type === "artists/addNewArtist/rejected") {
             toast.error("Add new artist failed");
+            setIsLoading(false);
           }
         });
       }
 
       if (res.type === "uploads/uploadImage/rejected") {
         toast.error("Upload avatar failed");
+        setIsLoading(false);
       }
     });
 
@@ -214,7 +212,7 @@ const AddArtistModal = (props: PropType) => {
               className="mt-10 w-[45%] bg-[#1ed760] py-3 text-black font-semibold rounded-3xl
                       transform transition duration-200 hover:scale-105"
             >
-              {isUploading || isLoading ? "Loading..." : "Add"}
+              {isLoading ? "Loading..." : "Add"}
             </button>
           </div>
         </form>
