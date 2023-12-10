@@ -58,8 +58,12 @@ const AddDropdown = (props: PropType) => {
     const id = target.id;
 
     if (target.className.includes) {
-      const name = target.className.includes("add-dropdown-menu");
-      if (!name) setShow(false);
+      // const name = target.className.includes("add-dropdown-menu");
+      if (
+        !target.className.includes("add-dropdown-menu") ||
+        !target.className.includes("add-dropdown-menu-overlay")
+      )
+        setShow(false);
     }
 
     if (!target.className.includes && id !== "add") {
@@ -82,16 +86,23 @@ const AddDropdown = (props: PropType) => {
   };
 
   return (
-    <div className="relative">
+    <div className="group relative">
       <div
         className="add-dropdown-menu w-[40px] h-[40px] p-2 flex items-center justify-center rounded-full border border-solid
-                    hover:cursor-pointer hover:scale-105 hover:border-[#1ed760] hover:text-[#1ed760]"
+                    hover:cursor-pointer hover:scale-105 group-hover:border-[#1ed760] group-hover:text-[#1ed760]"
         onClick={() => {
           setShow(!show);
         }}
       >
         <p className="user-dropdown-menu">{icon}</p>
       </div>
+
+      <div
+        className="add-dropdown-menu-overlay absolute top-0 rounded-full w-[100%] h-[100%] opacity-0 hover:cursor-pointer"
+        onClick={() => {
+          setShow(!show);
+        }}
+      ></div>
 
       <div
         className={`absolute z-30 p-[5px] top-[50px] min-w-[200px] rounded-sm right-[0px] bg-[#242424] flex flex-col items-center ${

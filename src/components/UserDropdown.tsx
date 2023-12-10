@@ -52,8 +52,12 @@ const UserDropdown = (props: PropType) => {
     const id = target.id;
 
     if (target.className.includes) {
-      const name = target.className.includes("user-dropdown-menu");
-      if (!name) setShow(false);
+      // const name = target.className.includes("user-dropdown-menu");
+      if (
+        !target.className.includes("user-dropdown-menu") ||
+        !target.className.includes("user-dropdown-menu-overlay")
+      )
+        setShow(false);
     }
 
     if (!target.className.includes && id !== "user") {
@@ -70,9 +74,9 @@ const UserDropdown = (props: PropType) => {
   };
 
   return (
-    <div className="relative">
+    <div className="group relative">
       <div
-        className="user-dropdown-menu h-[40px] p-2 flex items-center justify-center gap-3 hover:cursor-pointer hover:text-[#1ed760]"
+        className="user-dropdown-menu h-[40px] p-2 flex items-center justify-center gap-3 hover:cursor-pointer group-hover:text-[#1ed760]"
         onClick={() => {
           setShow(!show);
         }}
@@ -80,6 +84,13 @@ const UserDropdown = (props: PropType) => {
         <div className="user-dropdown-menu">{userProfile?.username}</div>
         <p className="user-dropdown-menu">{icon}</p>
       </div>
+
+      <div
+        className="user-dropdown-menu-overlay absolute top-0 rounded-full w-[100%] h-[100%] opacity-0 hover:cursor-pointer"
+        onClick={() => {
+          setShow(!show);
+        }}
+      ></div>
 
       <div
         className={`absolute z-30 p-[5px] top-[50px] min-w-[200px] rounded-sm right-[0px] bg-[#242424] flex flex-col items-center ${
