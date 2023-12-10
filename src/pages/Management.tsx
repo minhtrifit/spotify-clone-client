@@ -111,9 +111,12 @@ const Management = () => {
     }
   };
 
-  const handleDeleteAudio = async (id: number | undefined) => {
+  const handleDeleteAudio = async (
+    id: number | undefined,
+    fileName: string | undefined
+  ) => {
     if (confirm(`Are you sure want to delete audio ${id}?`) == true) {
-      if (id !== undefined) {
+      if (id !== undefined && fileName !== undefined) {
         try {
           const res = await dispatchAsync(deleteAudioById(id)).unwrap();
 
@@ -122,6 +125,9 @@ const Management = () => {
 
           if (res?.message) {
             toast.success(res.message);
+
+            // Delete image
+            dispatchAsync(deleteFileByName(fileName));
           }
         } catch (error) {
           console.log(error);
@@ -168,7 +174,7 @@ const Management = () => {
                   </td>
                   <td className="py-3 px-4">
                     <img
-                      className="w-[80px]"
+                      className="w-[70px] rounded-md"
                       src={artist.avatar}
                       alt="avatar"
                     />
@@ -241,7 +247,11 @@ const Management = () => {
                     <p className="truncate">{audio.url}</p>
                   </td>
                   <td className="py-3 px-4 ">
-                    <img className="w-[80px]" src={audio.avatar} alt="avatar" />
+                    <img
+                      className="w-[70px] rounded-md"
+                      src={audio.avatar}
+                      alt="avatar"
+                    />
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex gap-5">
@@ -251,7 +261,7 @@ const Management = () => {
                       <button
                         className="text-black font-bold px-4 py-2 rounded-md bg-red-600 hover:bg-red-500"
                         onClick={() => {
-                          handleDeleteAudio(audio.id);
+                          handleDeleteAudio(audio.id, audio.avatar);
                         }}
                       >
                         Delete
