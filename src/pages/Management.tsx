@@ -125,7 +125,7 @@ const Management = () => {
   };
 
   return (
-    <div className="mt-10 px-6 flex flex-col gap-5">
+    <div className="my-10 px-6 flex flex-col gap-5">
       <p className="text-2xl font-bold">
         {type && capitalizeFirstLetter(type)} Management
       </p>

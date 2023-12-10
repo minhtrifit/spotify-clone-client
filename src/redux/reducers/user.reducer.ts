@@ -145,7 +145,7 @@ const userReducer = createReducer(initialState, (builder) => {
     })
 
     .addCase(handleAccessToken.fulfilled, (state, action) => {
-      const data: User = action.payload.data;
+      const data: User = action.payload?.data;
 
       const accessToken = sessionStorage
         .getItem("accessToken")

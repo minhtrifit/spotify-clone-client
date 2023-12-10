@@ -26,7 +26,12 @@ const ProtectedRoute = ({ roles, children }: any) => {
     (state) => state.user.profile?.roles
   );
 
+
   useEffect(() => {
+    if (role === undefined) {
+      navigate("/");
+    }
+
     if (role !== undefined && !roles.includes(role)) {
       navigate("/");
     }
