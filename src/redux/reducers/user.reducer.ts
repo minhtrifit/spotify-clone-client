@@ -1,16 +1,24 @@
 import { createReducer, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+import {
+  PendingAction,
+  FulfilledAction,
+  RejectedAction,
+} from "../../types/reduxthunk.type";
+
 import { User } from "../../types/user";
 
 import { logoutAccount } from "../actions/user.action";
 
 // Interface declair
 interface UserState {
+  currentId: string;
   profile: User | null;
   accessToken: string;
   refreshToken: string;
   isLoading: boolean;
+  isError: boolean;
 }
 
 export const loginAccount = createAsyncThunk(
@@ -104,17 +112,16 @@ export const handleAccessToken = createAsyncThunk(
 
 // InitialState value
 const initialState: UserState = {
+  currentId: "",
   profile: null,
   accessToken: "",
   refreshToken: "",
   isLoading: false,
+  isError: false,
 };
 
 const userReducer = createReducer(initialState, (builder) => {
   builder
-    .addCase(loginAccount.pending, (state) => {
-      state.isLoading = true;
-    })
     .addCase(loginAccount.fulfilled, (state, action) => {
       const data: { accessToken: string; refreshToken: string } =
         action.payload.data;
@@ -124,24 +131,11 @@ const userReducer = createReducer(initialState, (builder) => {
 
       sessionStorage.setItem("accessToken", JSON.stringify(data.accessToken));
       sessionStorage.setItem("refreshToken", JSON.stringify(data.refreshToken));
-
-      state.isLoading = false;
-    })
-    .addCase(loginAccount.rejected, (state) => {
-      state.isLoading = false;
     })
 
-    .addCase(getUserProfile.pending, (state) => {
-      state.isLoading = true;
-    })
     .addCase(getUserProfile.fulfilled, (state, action) => {
       const userData: User = action.payload.data;
       state.profile = userData;
-
-      state.isLoading = false;
-    })
-    .addCase(getUserProfile.rejected, (state) => {
-      state.isLoading = false;
     })
 
     .addCase(handleAccessToken.fulfilled, (state, action) => {
@@ -170,7 +164,35 @@ const userReducer = createReducer(initialState, (builder) => {
       state.accessToken = "";
       state.refreshToken = "";
       sessionStorage.clear();
-    });
+    })
+
+    .addMatcher(
+      (action): action is PendingAction => action.type.endsWith("/pending"),
+      (state, action) => {
+        state.currentId = action.meta.requestId;
+        if (state.currentId === action.meta.requestId) {
+          state.isLoading = true;
+        }
+      }
+    )
+    .addMatcher(
+      (action): action is FulfilledAction => action.type.endsWith("/fulfilled"),
+      (state, action) => {
+        if (state.isLoading && state.currentId === action.meta.requestId) {
+          state.isLoading = false;
+          state.isError = false;
+        }
+      }
+    )
+    .addMatcher(
+      (action): action is RejectedAction => action.type.endsWith("/rejected"),
+      (state, action) => {
+        if (state.isLoading && state.currentId === action.meta.requestId) {
+          state.isLoading = false;
+          state.isError = true;
+        }
+      }
+    );
 });
 
 export default userReducer;

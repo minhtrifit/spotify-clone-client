@@ -2,6 +2,12 @@ import { createReducer, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 import {
+  PendingAction,
+  FulfilledAction,
+  RejectedAction,
+} from "../../types/reduxthunk.type";
+
+import {
   updateTargetAudio,
   updateIsPlaying,
   updateIsPlayingAlbum,
@@ -308,19 +314,10 @@ const initialState: MediaState = {
 
 const mediaReducer = createReducer(initialState, (builder) => {
   builder
-    .addCase(getAllAudios.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(getAllAudios.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isError = false;
 
+    .addCase(getAllAudios.fulfilled, (state, action) => {
       const payload: any = action.payload;
       state.audios = payload.data;
-    })
-    .addCase(getAllAudios.rejected, (state) => {
-      state.isLoading = false;
-      state.isError = true;
     })
 
     .addCase(updateTargetAudio, (state, action) => {
@@ -334,19 +331,9 @@ const mediaReducer = createReducer(initialState, (builder) => {
       state.targetAlbum = album;
     })
 
-    .addCase(getAudioById.pending, (state) => {
-      state.isLoading = true;
-    })
     .addCase(getAudioById.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isError = false;
-
       const payload: any = action.payload;
       state.detailAudio = payload.data;
-    })
-    .addCase(getAudioById.rejected, (state) => {
-      state.isLoading = false;
-      state.isError = true;
     })
 
     .addCase(updateIsPlaying, (state, action) => {
@@ -354,34 +341,14 @@ const mediaReducer = createReducer(initialState, (builder) => {
       state.isPlayingAudio = value;
     })
 
-    .addCase(getAllAlbums.pending, (state) => {
-      state.isLoading = true;
-    })
     .addCase(getAllAlbums.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isError = false;
-
       const payload: any = action.payload;
       state.albums = payload.data;
     })
-    .addCase(getAllAlbums.rejected, (state) => {
-      state.isLoading = false;
-      state.isError = true;
-    })
 
-    .addCase(getAlbumById.pending, (state) => {
-      state.isLoading = true;
-    })
     .addCase(getAlbumById.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isError = false;
-
       const payload: any = action.payload;
       state.detailAlbum = payload.data;
-    })
-    .addCase(getAlbumById.rejected, (state) => {
-      state.isLoading = false;
-      state.isError = true;
     })
 
     .addCase(updateIsPlayingAlbum, (state, action) => {
@@ -394,45 +361,33 @@ const mediaReducer = createReducer(initialState, (builder) => {
       state.artists = payload.data;
     })
 
-    .addCase(addNewArtist.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(addNewArtist.fulfilled, (state) => {
-      state.isLoading = false;
-    })
-    .addCase(addNewArtist.rejected, (state) => {
-      state.isLoading = false;
-    })
-
-    .addCase(addNewAudio.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(addNewAudio.fulfilled, (state) => {
-      state.isLoading = false;
-    })
-    .addCase(addNewAudio.rejected, (state) => {
-      state.isLoading = false;
-    })
-
-    .addCase(deleteArtistById.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(deleteArtistById.fulfilled, (state) => {
-      state.isLoading = false;
-    })
-    .addCase(deleteArtistById.rejected, (state) => {
-      state.isLoading = false;
-    })
-
-    .addCase(deleteAudioById.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(deleteAudioById.fulfilled, (state) => {
-      state.isLoading = false;
-    })
-    .addCase(deleteAudioById.rejected, (state) => {
-      state.isLoading = false;
-    });
+    .addMatcher(
+      (action): action is PendingAction => action.type.endsWith("/pending"),
+      (state, action) => {
+        state.currentId = action.meta.requestId;
+        if (state.currentId === action.meta.requestId) {
+          state.isLoading = true;
+        }
+      }
+    )
+    .addMatcher(
+      (action): action is FulfilledAction => action.type.endsWith("/fulfilled"),
+      (state, action) => {
+        if (state.isLoading && state.currentId === action.meta.requestId) {
+          state.isLoading = false;
+          state.isError = false;
+        }
+      }
+    )
+    .addMatcher(
+      (action): action is RejectedAction => action.type.endsWith("/rejected"),
+      (state, action) => {
+        if (state.isLoading && state.currentId === action.meta.requestId) {
+          state.isLoading = false;
+          state.isError = true;
+        }
+      }
+    );
 });
 
 export default mediaReducer;

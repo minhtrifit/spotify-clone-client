@@ -17,6 +17,8 @@ import {
 import { Artist, Audio } from "../types/media";
 import { deleteFileByName } from "../redux/reducers/upload.reducer";
 
+import EditArtistModal from "../components/EditArtistModal";
+
 // import { artistList } from "../utils";
 
 const capitalizeFirstLetter = (word: string) => {
@@ -34,6 +36,9 @@ const Management = () => {
   const [listPerPage, setListPerPage] = useState<any[]>([]);
   const [pages, setPages] = useState<number[]>([]);
   const [activePage, setActivePage] = useState<number>(1);
+
+  const [openEditArtistModal, setOpenEditArtistModal] =
+    useState<boolean>(false);
 
   const dispatchAsync = useAppDispatch();
 
@@ -173,6 +178,11 @@ const Management = () => {
         {type && capitalizeFirstLetter(type)} Management
       </p>
 
+      <EditArtistModal
+        openEditArtistModal={openEditArtistModal}
+        setOpenEditArtistModal={setOpenEditArtistModal}
+      />
+
       {type && type.toLowerCase() === "artist" && (
         <>
           <table className="mt-10 min-w-full shadow-md border-t border-l border-r border-zinc-500">
@@ -212,7 +222,12 @@ const Management = () => {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex gap-5">
-                        <button className="text-black font-bold px-4 py-2 rounded-md bg-[#1ed760] hover:bg-[#19fa6a]">
+                        <button
+                          className="text-black font-bold px-4 py-2 rounded-md bg-[#1ed760] hover:bg-[#19fa6a]"
+                          onClick={() => {
+                            setOpenEditArtistModal(true);
+                          }}
+                        >
                           Edit
                         </button>
                         <button
