@@ -1,6 +1,6 @@
 import { Artist } from "../types/media";
 
-export const artistTempList: Artist[] = [
+export const artistList: Artist[] = [
   {
     id: 1,
     name: "Miina",
