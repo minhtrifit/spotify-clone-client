@@ -40,6 +40,28 @@ export const uploadImage = createAsyncThunk(
   }
 );
 
+export const deleteFileByName = createAsyncThunk(
+  "uploads/uploadImage",
+
+  async (fileName: string, thunkAPI) => {
+    try {
+      const response = await axios.delete(`${fileName}`, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.name === "AxiosError") {
+        return thunkAPI.rejectWithValue({ message: "Delete file failed" });
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const uploadAudio = createAsyncThunk(
   "uploads/uploadAudio",
 

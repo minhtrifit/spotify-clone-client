@@ -15,6 +15,7 @@ import {
 } from "../redux/reducers/media.reducer";
 
 import { Artist, Audio } from "../types/media";
+import { deleteFileByName } from "../redux/reducers/upload.reducer";
 
 const capitalizeFirstLetter = (word: string) => {
   return word.charAt(0).toUpperCase() + word.slice(1);
@@ -82,45 +83,51 @@ const Management = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, audioList]);
 
-  const handleDeleteArtist = (id: number | undefined) => {
+  const handleDeleteArtist = async (
+    id: number | undefined,
+    fileName: string | undefined
+  ) => {
     if (confirm(`Are you sure want to delete artist ${id}?`) == true) {
-      if (id !== undefined) {
-        const promise = dispatchAsync(deleteArtistById(id));
+      if (id !== undefined && fileName !== undefined) {
+        try {
+          const deleteArtistRes = await dispatchAsync(
+            deleteArtistById(id)
+          ).unwrap();
 
-        promise.then((res) => {
-          if (res.type === "artists/deleteArtistById/fulfilled") {
-            toast.success("Delete artist successfully");
-            dispatchAsync(getAllArtists());
-          }
+          // Refresh artist list
+          dispatchAsync(getAllArtists());
 
-          if (res.type === "artists/deleteArtistById/rejected") {
-            toast.error("Delete artist failed");
+          if (deleteArtistRes?.message) {
+            toast.success(deleteArtistRes.message);
+
+            // Delete image
+            dispatchAsync(deleteFileByName(fileName));
           }
-        });
+        } catch (error) {
+          console.log(error);
+          toast.error("Delete artist failed");
+        }
       }
-    } else {
-      //
     }
   };
 
-  const handleDeleteAudio = (id: number | undefined) => {
+  const handleDeleteAudio = async (id: number | undefined) => {
     if (confirm(`Are you sure want to delete audio ${id}?`) == true) {
       if (id !== undefined) {
-        const promise = dispatchAsync(deleteAudioById(id));
+        try {
+          const res = await dispatchAsync(deleteAudioById(id)).unwrap();
 
-        promise.then((res) => {
-          if (res.type === "audios/deleteAudioById/fulfilled") {
-            toast.success("Delete audio successfully");
-            dispatchAsync(getAllAudios());
-          }
+          // Reload audio list
+          dispatchAsync(getAllAudios());
 
-          if (res.type === "audios/deleteAudioById/rejected") {
-            toast.error("Delete audio failed");
+          if (res?.message) {
+            toast.success(res.message);
           }
-        });
+        } catch (error) {
+          console.log(error);
+          toast.error("Delete audio failed");
+        }
       }
-    } else {
-      //
     }
   };
 
@@ -174,7 +181,7 @@ const Management = () => {
                       <button
                         className="text-black font-bold px-4 py-2 rounded-md bg-red-600 hover:bg-red-500"
                         onClick={() => {
-                          handleDeleteArtist(artist.id);
+                          handleDeleteArtist(artist.id, artist.avatar);
                         }}
                       >
                         Delete

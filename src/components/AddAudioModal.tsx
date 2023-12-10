@@ -329,7 +329,7 @@ const AddAudioModal = (props: PropType) => {
               />
             </div>
 
-            <div className="w-[100%] flex gap-5 justify-between">
+            <div className="w-[100%] flex flex-col gap-3 justify-between">
               <div className="w-[100%] h-[120px] flex flex-col gap-3">
                 <p className="text-sm font-semibold">Audio</p>
                 <input
