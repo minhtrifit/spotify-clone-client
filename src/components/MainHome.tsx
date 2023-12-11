@@ -41,17 +41,27 @@ const MainHome = () => {
   }, []);
 
   return (
-    <div className="px-6 mt-10 flex flex-col gap-20">
+    <div className="px-6 flex flex-col gap-20">
       {isLoading ? (
         <SkeletonLoading />
       ) : (
-        <MediaCard title="Featured Audio" type="audio" list={audioList} />
+        <MediaCard
+          title="Featured Audio"
+          type="audio"
+          list={audioList}
+          max={4}
+        />
       )}
 
       {isLoading ? (
         <SkeletonLoading />
       ) : (
-        <MediaCard title="Featured Album" type="album" list={albumList} />
+        <MediaCard
+          title="Featured Album"
+          type="album"
+          list={albumList}
+          max={4}
+        />
       )}
     </div>
   );

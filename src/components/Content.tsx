@@ -10,6 +10,7 @@ import DetailAlbum from "../pages/DetailAlbum";
 import Management from "../pages/Management";
 
 import ProtectedRoute from "./ProtectedRoute";
+import ViewAll from "./ViewAll";
 
 const Content = () => {
   return (
@@ -21,6 +22,7 @@ const Content = () => {
           <Route path="/search" element={<MainSearch />} />
           <Route path="/audio/:id" element={<DetailAudio />} />
           <Route path="/album/:id" element={<DetailAlbum />} />
+          <Route path="/all/:type" element={<ViewAll />} />
           <Route
             path="/management/:type"
             element={
