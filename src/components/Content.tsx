@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import Header from "./Header";
+import Footer from "./Footer";
 
 import MainHome from "./MainHome";
 import MainSearch from "./MainSearch";
@@ -30,6 +31,7 @@ const Content = () => {
           />
         </Routes>
       </div>
+      <Footer />
     </div>
   );
 };
