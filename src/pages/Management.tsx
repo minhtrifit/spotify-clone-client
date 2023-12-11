@@ -36,6 +36,7 @@ const Management = () => {
   const [listPerPage, setListPerPage] = useState<any[]>([]);
   const [pages, setPages] = useState<number[]>([]);
   const [activePage, setActivePage] = useState<number>(1);
+  const [targetArtist, setTargetArtist] = useState<Artist | null>(null);
 
   const [openEditArtistModal, setOpenEditArtistModal] =
     useState<boolean>(false);
@@ -179,6 +180,7 @@ const Management = () => {
       </p>
 
       <EditArtistModal
+        targetArtist={targetArtist}
         openEditArtistModal={openEditArtistModal}
         setOpenEditArtistModal={setOpenEditArtistModal}
       />
@@ -226,6 +228,7 @@ const Management = () => {
                           className="text-black font-bold px-4 py-2 rounded-md bg-[#1ed760] hover:bg-[#19fa6a]"
                           onClick={() => {
                             setOpenEditArtistModal(true);
+                            setTargetArtist(artist);
                           }}
                         >
                           Edit

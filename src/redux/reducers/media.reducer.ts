@@ -30,6 +30,7 @@ interface MediaState {
   detailAlbum: Album | null;
   isPlayingAlbum: boolean;
   artists: Artist[];
+  targetArtist: Artist | null;
 }
 
 // createAsyncThunk middleware
@@ -224,6 +225,67 @@ export const getAllArtists = createAsyncThunk(
   }
 );
 
+export const getArtistById = createAsyncThunk(
+  "artists/getArtistById",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (id: number, thunkAPI) => {
+    try {
+      const response = await axios.get<Artist[]>(
+        `${import.meta.env.VITE_API_URL}/api/v1/artist/${id}`,
+        {
+          signal: thunkAPI.signal,
+        }
+      );
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.name === "AxiosError") {
+        return thunkAPI.rejectWithValue({ message: "Get artists failed" });
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const editArtist = createAsyncThunk(
+  "artists/EditArtist",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (editArtist: Artist, thunkAPI) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/edit/artist`,
+          {
+            id: editArtist.id,
+            name: editArtist.name,
+            followers: editArtist.followers,
+            avatar: editArtist.avatar,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const addNewAudio = createAsyncThunk(
   "audios/addNewAudio",
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -310,6 +372,7 @@ const initialState: MediaState = {
   isPlayingAlbum: false,
   targetAlbum: null,
   artists: [],
+  targetArtist: null,
 };
 
 const mediaReducer = createReducer(initialState, (builder) => {
@@ -359,6 +422,11 @@ const mediaReducer = createReducer(initialState, (builder) => {
     .addCase(getAllArtists.fulfilled, (state, action) => {
       const payload: any = action.payload;
       state.artists = payload.data;
+    })
+
+    .addCase(getArtistById.fulfilled, (state, action) => {
+      const payload: any = action.payload;
+      state.targetArtist = payload.data;
     })
 
     .addMatcher(
