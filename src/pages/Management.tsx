@@ -14,7 +14,7 @@ import {
   getAllAudios,
 } from "../redux/reducers/media.reducer";
 
-import { Artist, Audio } from "../types/media";
+import { Album, Artist, Audio } from "../types/media";
 import { deleteFileByName } from "../redux/reducers/upload.reducer";
 
 import EditArtistModal from "../components/EditArtistModal";
@@ -112,6 +112,21 @@ const Management = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, artistList]);
 
+  // Get pagination audio list
+  useEffect(() => {
+    if (type?.toLowerCase() === "audio" && audioList.length !== 0) {
+      // Caculate page
+      const total = Math.ceil(artistList.length / ITEMS_PER_PAGE);
+      setPages(Array.from({ length: total }, (_, i) => i + 1));
+
+      // Init first page list
+      const begin = (activePage - 1) * ITEMS_PER_PAGE;
+      const end = (activePage - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE;
+      setListPerPage(audioList.slice(begin, end));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, audioList]);
+
   const handleDeleteArtist = async (
     id: number | undefined,
     fileName: string | undefined
@@ -170,7 +185,9 @@ const Management = () => {
     setActivePage(page);
     const begin = (page - 1) * ITEMS_PER_PAGE;
     const end = (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE;
-    setListPerPage(artistList.slice(begin, end));
+
+    if (type === "artist") setListPerPage(artistList.slice(begin, end));
+    if (type === "audio") setListPerPage(audioList.slice(begin, end));
   };
 
   return (
@@ -302,7 +319,7 @@ const Management = () => {
               </tr>
             </thead>
             <tbody className="text-blue-gray-900">
-              {audioList?.map((audio) => {
+              {listPerPage?.map((audio) => {
                 return (
                   <tr
                     key={uuidv4()}
@@ -317,7 +334,7 @@ const Management = () => {
                     <td className="py-3 px-4">
                       <div className="flex flex-col gap-3">
                         {audio.artists &&
-                          audio.artists?.map((artist) => {
+                          audio.artists?.map((artist: Artist) => {
                             return <p key={uuidv4()}>{artist.name}</p>;
                           })}
                       </div>
@@ -325,7 +342,7 @@ const Management = () => {
                     <td className="py-3 px-4">
                       <div className="flex flex-col gap-3">
                         {audio.albums &&
-                          audio.albums?.map((album) => {
+                          audio.albums?.map((album: Album) => {
                             return <p key={uuidv4()}>{album.name}</p>;
                           })}
                       </div>
