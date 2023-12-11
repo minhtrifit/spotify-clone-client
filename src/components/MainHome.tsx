@@ -12,6 +12,7 @@ import { axiosInterReq, axiosInterRes } from "../helpers/axios";
 import { Audio, Album } from "../types/media";
 
 import MediaCard from "./MediaCard";
+import SkeletonLoading from "./SkeletonLoading";
 
 const MainHome = () => {
   const dispatchAsync = useAppDispatch();
@@ -22,6 +23,10 @@ const MainHome = () => {
 
   const albumList = useSelector<RootState, Album[]>(
     (state) => state.media.albums
+  );
+
+  const isLoading = useSelector<RootState, boolean>(
+    (state) => state.media.isLoading
   );
 
   axiosInterReq;
@@ -37,8 +42,17 @@ const MainHome = () => {
 
   return (
     <div className="px-6 mt-10 flex flex-col gap-20">
-      <MediaCard title="Featured Audio" type="audio" list={audioList} />
-      <MediaCard title="Featured Album" type="album" list={albumList} />
+      {isLoading ? (
+        <SkeletonLoading />
+      ) : (
+        <MediaCard title="Featured Audio" type="audio" list={audioList} />
+      )}
+
+      {isLoading ? (
+        <SkeletonLoading />
+      ) : (
+        <MediaCard title="Featured Album" type="album" list={albumList} />
+      )}
     </div>
   );
 };

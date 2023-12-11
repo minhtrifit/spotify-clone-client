@@ -42,6 +42,51 @@ const Audio = () => {
     }
   };
 
+  const handleNextAudio = () => {
+    if (isPlayingAlbum && album?.audios && audio) {
+      const playingAudioIndex = album?.audios?.findIndex(
+        (x) => x.id === audio.id
+      );
+
+      const lastAudio = album?.audios?.slice(-1)[0];
+      const lastAudioIndex = album?.audios?.findIndex(
+        (x) => x.id === lastAudio?.id
+      );
+
+      if (playingAudioIndex === lastAudioIndex && album.audios) {
+        dispatch({ type: "media/updateTargetAudio", payload: album.audios[0] });
+      } else {
+        const nextAudio = album.audios[playingAudioIndex + 1];
+
+        dispatch({ type: "media/updateTargetAudio", payload: nextAudio });
+      }
+    }
+  };
+
+  const handlePreviousAudio = () => {
+    if (isPlayingAlbum && album?.audios && audio) {
+      const playingAudioIndex = album?.audios?.findIndex(
+        (x) => x.id === audio.id
+      );
+
+      const lastAudio = album?.audios?.slice(-1)[0];
+      const lastAudioIndex = album?.audios?.findIndex(
+        (x) => x.id === lastAudio?.id
+      );
+
+      if (playingAudioIndex === 0 && album.audios) {
+        dispatch({
+          type: "media/updateTargetAudio",
+          payload: album.audios[lastAudioIndex],
+        });
+      } else {
+        const previousAudio = album.audios[playingAudioIndex - 1];
+
+        dispatch({ type: "media/updateTargetAudio", payload: previousAudio });
+      }
+    }
+  };
+
   return (
     <AudioPlayer
       autoPlay
@@ -59,8 +104,8 @@ const Audio = () => {
       onEnded={() => {
         handleEndAudio();
       }}
-      // onClickNext={(e) => console.log(e)}
-      // onClickPrevious={(e) => console.log(e)}
+      onClickNext={() => handleNextAudio()}
+      onClickPrevious={() => handlePreviousAudio()}
     />
   );
 };
