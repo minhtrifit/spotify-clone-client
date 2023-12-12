@@ -4,6 +4,7 @@ import { FaSpotify } from "react-icons/fa";
 import { BiSearchAlt2, BiSolidSearch, BiLibrary } from "react-icons/bi";
 import { GoHome, GoHomeFill } from "react-icons/go";
 import { IoMdAdd } from "react-icons/io";
+import { useEffect } from "react";
 
 interface Proptype {
   active: string;
@@ -13,7 +14,19 @@ interface Proptype {
 const Slidebar = (props: Proptype) => {
   const { active, setActive } = props;
 
+  const params = window.location.href;
+
   const nagivate = useNavigate();
+
+  useEffect(() => {
+    if (params.includes("/search")) {
+      setActive("search");
+    } else {
+      setActive("home");
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
 
   return (
     <div className="hidden min-w-[250px] max-h-screen md:flex flex-col gap-2">
