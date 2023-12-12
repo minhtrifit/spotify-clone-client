@@ -31,6 +31,7 @@ interface MediaState {
   isPlayingAlbum: boolean;
   artists: Artist[];
   targetArtist: Artist | null;
+  searchAudios: Audio[] | null;
 }
 
 // createAsyncThunk middleware
@@ -373,6 +374,7 @@ const initialState: MediaState = {
   targetAlbum: null,
   artists: [],
   targetArtist: null,
+  searchAudios: [],
 };
 
 const mediaReducer = createReducer(initialState, (builder) => {

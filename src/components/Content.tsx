@@ -14,7 +14,7 @@ import ViewAll from "./ViewAll";
 
 const Content = () => {
   return (
-    <div className="w-[100%] max-h-screen bg-[#121212] rounded-md py-4 overflow-y-auto">
+    <div className="relative w-[100%] max-h-screen bg-[#121212] rounded-md py-4 overflow-y-auto">
       <Header />
       <div className="mt-[15px]">
         <Routes>

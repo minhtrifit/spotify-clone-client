@@ -32,8 +32,6 @@ const ViewAll = () => {
     (state) => state.media.albums
   );
 
-  console.log(isLoading);
-
   useEffect(() => {
     if (type === "audio") dispatchAsync(getAllAudios());
     if (type === "album") dispatchAsync(getAllAlbums());
