@@ -21,3 +21,11 @@ export interface Album {
   createdAt?: string;
   avatar?: string;
 }
+
+export interface Playlist {
+  id?: number;
+  userId?: number;
+  name: string;
+  audios?: Audio[] | (number | undefined)[];
+  avatar?: string;
+}

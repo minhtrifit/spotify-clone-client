@@ -14,16 +14,26 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+
+import { MdLibraryMusic } from "react-icons/md";
+
+import { uploadImage } from "../../redux/reducers/upload.reducer";
 
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useAppDispatch } from "../../redux/hooks";
-import { getAllAudiosColumn } from "../../redux/reducers/media.reducer";
+import {
+  addNewPlaylist,
+  getAllAudiosColumn,
+} from "../../redux/reducers/media.reducer";
 
 import SearchBar from "../SearchBar";
 
-import { Audio as AudioType } from "../../types/media";
+import { Audio as AudioType, Playlist } from "../../types/media";
 import { AudioColumnType, ColumnType } from "../../types/playlist";
+import { User } from "../../types/user";
 
 import { columnsData } from "../../utils";
 
@@ -32,6 +42,13 @@ import Card from "./Card";
 
 const AddPlaylistBoard = () => {
   const dispatchAsync = useAppDispatch();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    resetField,
+  } = useForm();
 
   const columns: ColumnType[] = columnsData;
 
@@ -43,12 +60,18 @@ const AddPlaylistBoard = () => {
   const [searchAudios, setSearchAudios] = useState<AudioType[] | undefined>([]);
   const [sourceAudio, setSourceAudio] = useState<AudioColumnType[]>([]);
 
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const isLoading = useSelector<RootState, boolean>(
     (state) => state.media.isLoading
   );
 
   const audiosColumn = useSelector<RootState, AudioColumnType[]>(
     (state) => state.media.audiosColumn
+  );
+
+  const userProfile = useSelector<RootState, User | null>(
+    (state) => state.user.profile
   );
 
   useEffect(() => {
@@ -206,6 +229,81 @@ const AddPlaylistBoard = () => {
     setAudios(newAudios);
   };
 
+  //==================== Create new playlist
+  const handlePreviewImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result as string);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const onSubmit = async (data: any) => {
+    const name = data.name;
+    const picture = data.picture;
+
+    const formData = new FormData();
+    formData.append("file", picture[0]);
+
+    const audioList = audios.filter((audio) => {
+      return audio.columnId === "playlist";
+    });
+
+    if (audioList.length === 0) {
+      toast.error("Please drag audio to playlist");
+      return;
+    }
+
+    const audioFormatted = audioList.map((audio) => {
+      return audio.id;
+    });
+
+    try {
+      // Update image
+      const resUploadImage = await dispatchAsync(
+        uploadImage(formData)
+      ).unwrap();
+
+      if (resUploadImage.status === "ok") {
+        const imageUrl = `${import.meta.env.VITE_API_URL}/upload/files/${
+          resUploadImage.data
+        }`;
+
+        if (userProfile && audioList) {
+          const newPlaylist: Playlist = {
+            userId: userProfile.id,
+            name: name,
+            audios: audioFormatted,
+            avatar: imageUrl,
+          };
+
+          const resAddNewPlaylist = await dispatchAsync(
+            addNewPlaylist(newPlaylist)
+          );
+
+          if (resAddNewPlaylist.type === "playlists/addNewPlaylist/fulfilled") {
+            toast.success("Create playlist successfully");
+          }
+
+          if (resAddNewPlaylist.type === "playlists/addNewPlaylist/rejected") {
+            toast.error("Create playlist failed");
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Create playlist failed");
+    }
+
+    resetField("name");
+    resetField("picture");
+    setPreviewImage("");
+  };
+
   return (
     <div className="px-6 mt-20">
       <SearchBar
@@ -227,34 +325,127 @@ const AddPlaylistBoard = () => {
           </div>
         </div>
       ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCorners}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="flex gap-10 xl:justify-center overflow-x-auto">
-            {columns?.map((col) => {
-              return (
-                <Column
-                  key={col.id}
-                  column={col}
-                  audios={audios.filter((audio) => audio.columnId === col.id)}
-                  handleRemoveAudioFromPlaylist={handleRemoveAudioFromPlaylist}
+        <div className="flex flex-col items-center">
+          <form
+            className="w-[400px] md:w-[500px] p-4"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <div className="flex flex-col gap-5 items-center">
+              <div className="flex items-center gap-5 mb-10">
+                <p className="text-2xl font-black">
+                  Create Your Own Sound World
+                </p>
+                <MdLibraryMusic size={30} />
+              </div>
+
+              <div className="w-[100%] h-[120px] flex flex-col gap-3">
+                <p className="text-sm font-semibold">Name</p>
+                <input
+                  className={`w-[100%] bg-[#242424] px-4 py-2 border border-solid border-gray-500 rounded-md ${
+                    errors?.email?.message && "border-red-500"
+                  }`}
+                  type="text"
+                  placeholder="Name"
+                  {...register("name", {
+                    required: "Playlist Name is required",
+                  })}
                 />
-              );
-            })}
-            <DragOverlay dropAnimation={dropAnimation}>
-              {audio ? (
-                <Card
-                  audio={audio}
-                  handleRemoveAudioFromPlaylist={handleRemoveAudioFromPlaylist}
-                />
-              ) : null}
-            </DragOverlay>
-          </div>
-        </DndContext>
+                {errors?.name?.message && (
+                  <p className="text-red-500">
+                    {errors.name.message.toString()}
+                  </p>
+                )}
+              </div>
+
+              <div className="w-[100%] flex justify-between gap-5 mb-20">
+                <div className="h-[120px] flex flex-col gap-3">
+                  <p className="text-sm font-semibold">Avatar</p>
+                  <input
+                    type="file"
+                    className="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                              file:text-sm file:font-semibold file:bg-[#1ed760] file:text-black hover:file:bg-[#19fa6a]
+                              file:disabled:opacity-50 file:disabled:pointer-events-none"
+                    {...register("picture", {
+                      required: "Avatar is required",
+                      validate: (value) => {
+                        const acceptedFormats = ["png", "jpg", "jpeg"];
+                        const fileExtension = value[0]?.name
+                          .split(".")
+                          .pop()
+                          .toLowerCase();
+                        if (!acceptedFormats.includes(fileExtension)) {
+                          return "Invalid file format. Only image files are allowed.";
+                        }
+                        return true;
+                      },
+                      onChange: (e) => {
+                        handlePreviewImage(e);
+                      },
+                    })}
+                  />
+                  {errors?.picture?.message && (
+                    <p className="text-red-500">
+                      {errors.picture.message.toString()}
+                    </p>
+                  )}
+                </div>
+
+                {previewImage && (
+                  <div className="h-[100px] flex flex-col gap-3">
+                    <img
+                      src={previewImage}
+                      alt="preview"
+                      className="max-w-[100px]"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCorners}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+              >
+                <div className="flex gap-10 xl:justify-center overflow-x-auto">
+                  {columns?.map((col) => {
+                    return (
+                      <Column
+                        key={col.id}
+                        column={col}
+                        audios={audios.filter(
+                          (audio) => audio.columnId === col.id
+                        )}
+                        handleRemoveAudioFromPlaylist={
+                          handleRemoveAudioFromPlaylist
+                        }
+                      />
+                    );
+                  })}
+                  <DragOverlay dropAnimation={dropAnimation}>
+                    {audio ? (
+                      <Card
+                        audio={audio}
+                        handleRemoveAudioFromPlaylist={
+                          handleRemoveAudioFromPlaylist
+                        }
+                      />
+                    ) : null}
+                  </DragOverlay>
+                </div>
+              </DndContext>
+
+              <button
+                type="submit"
+                className="mt-10 w-[45%] bg-[#1ed760] py-3 text-black font-semibold rounded-3xl
+                      transform transition duration-200 hover:scale-105"
+              >
+                {isLoading ? "Loading..." : "Create"}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </div>
   );

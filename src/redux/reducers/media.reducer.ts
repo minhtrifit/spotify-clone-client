@@ -14,7 +14,7 @@ import {
   updateTargetAlbum,
 } from "../actions/media.action";
 
-import { Audio, Album, Artist } from "../../types/media";
+import { Audio, Album, Artist, Playlist } from "../../types/media";
 import { AudioColumnType } from "../../types/playlist";
 
 // Interface declair
@@ -386,6 +386,67 @@ export const deleteAudioById = createAsyncThunk(
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const addNewPlaylist = createAsyncThunk(
+  "playlists/addNewPlaylist",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (playlist: Playlist, thunkAPI) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/add/playlist`,
+          {
+            userId: playlist.userId,
+            name: playlist.name,
+            audios: playlist.audios,
+            avatar: playlist.avatar,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getAllPlaylistsByUserId = createAsyncThunk(
+  "playlists/getAllPlaylistsByUserId",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (userId: string, thunkAPI) => {
+    try {
+      const response = await axios.get<Playlist[]>(
+        `${import.meta.env.VITE_API_URL}/api/v1/playlist/${userId}`,
+        {
+          signal: thunkAPI.signal,
+        }
+      );
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.name === "AxiosError") {
+        return thunkAPI.rejectWithValue({ message: "Get audios failed" });
+      }
       return thunkAPI.rejectWithValue(error);
     }
   }
