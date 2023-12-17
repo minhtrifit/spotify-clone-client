@@ -10,6 +10,7 @@ import DetailAlbum from "../pages/DetailAlbum";
 import Management from "../pages/Management";
 
 import ProtectedRoute from "./ProtectedRoute";
+import RoleProtectedRoute from "./RoleProtectedRoute";
 import ViewAll from "./ViewAll";
 
 const Content = () => {
@@ -26,8 +27,10 @@ const Content = () => {
           <Route
             path="/management/:type"
             element={
-              <ProtectedRoute roles={["ROLE_ADMIN"]}>
-                <Management />
+              <ProtectedRoute>
+                <RoleProtectedRoute roles={["ROLE_ADMIN"]}>
+                  <Management />
+                </RoleProtectedRoute>
               </ProtectedRoute>
             }
           />

@@ -1,43 +1,35 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useSelector } from "react-redux";
 import { useAppDispatch } from "../redux/hooks";
-import { RootState } from "../redux/store";
-
-import { handleAccessToken } from "../redux/reducers/user.reducer";
 
 import { axiosInterReq, axiosInterRes } from "../helpers/axios";
+import { handleAccessToken } from "../redux/reducers/user.reducer";
 
-const ProtectedRoute = ({ roles, children }: any) => {
+const ProtectedRoute = ({ children }: any) => {
   axiosInterReq;
   axiosInterRes;
 
   const dispatchAsync = useAppDispatch();
   const navigate = useNavigate();
 
+  const handleAuth = async () => {
+    try {
+      const res = await dispatchAsync(handleAccessToken()).unwrap();
+
+      if (res.status === "200") {
+        console.log("Auth successfully");
+      }
+    } catch (error) {
+      navigate("/");
+    }
+  };
+
   useEffect(() => {
-    dispatchAsync(handleAccessToken());
+    handleAuth();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const role: string | undefined = useSelector<RootState, string | undefined>(
-    (state) => state.user.profile?.roles
-  );
-
-
-  useEffect(() => {
-    if (role === undefined) {
-      navigate("/");
-    }
-
-    if (role !== undefined && !roles.includes(role)) {
-      navigate("/");
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role]);
 
   return children;
 };
