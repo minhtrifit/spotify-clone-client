@@ -12,6 +12,7 @@ import Management from "../pages/Management";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleProtectedRoute from "./RoleProtectedRoute";
 import ViewAll from "./ViewAll";
+import AddPlaylistBoard from "./AddPlaylistBoard/AddPlaylistBoard";
 
 const Content = () => {
   return (
@@ -31,6 +32,14 @@ const Content = () => {
                 <RoleProtectedRoute roles={["ROLE_ADMIN"]}>
                   <Management />
                 </RoleProtectedRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add/:type"
+            element={
+              <ProtectedRoute>
+                <AddPlaylistBoard />
               </ProtectedRoute>
             }
           />

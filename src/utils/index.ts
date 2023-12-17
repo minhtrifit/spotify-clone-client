@@ -1,4 +1,5 @@
 import { Artist } from "../types/media";
+import { ColumnType } from "../types/playlist";
 
 export const artistList: Artist[] = [
   {
@@ -48,5 +49,16 @@ export const artistList: Artist[] = [
     name: "Miina",
     followers: 3213,
     avatar: "http://localhost:8080/upload/files/1.png",
+  },
+];
+
+export const columnsData: ColumnType[] = [
+  {
+    id: "source",
+    name: "Source",
+  },
+  {
+    id: "playlist",
+    name: "Playlist",
   },
 ];

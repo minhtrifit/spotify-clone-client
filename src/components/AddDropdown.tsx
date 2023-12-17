@@ -80,6 +80,10 @@ const AddDropdown = (props: PropType) => {
       setOpenAddAudioModal(true);
     }
 
+    if (name === "Add new playlist" && type === "Playlist") {
+      navigate("/add/playlist");
+    }
+
     if (name === "Management") {
       navigate(`/management/${type.toLowerCase()}`);
     }

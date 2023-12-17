@@ -14,6 +14,8 @@ interface Proptype {
 const Slidebar = (props: Proptype) => {
   const { active, setActive } = props;
 
+  const navigate = useNavigate();
+
   const params = window.location.href;
 
   const nagivate = useNavigate();
@@ -82,7 +84,12 @@ const Slidebar = (props: Proptype) => {
 
       <div className="h-[100%] text-[15px] bg-[#121212] rounded-md py-4 px-6">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-3 hover:cursor-pointer hover:font-semibold">
+          <div
+            className="flex items-center gap-3 hover:cursor-pointer hover:font-semibold"
+            onClick={() => {
+              navigate("/add/playlist");
+            }}
+          >
             <BiLibrary size={30} />
             <p>Your Library</p>
           </div>

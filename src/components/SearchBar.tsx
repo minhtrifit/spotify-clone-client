@@ -19,7 +19,7 @@ interface PropType {
     React.SetStateAction<AudioType[] | undefined>
   >;
 
-  setSearchAlbums: React.Dispatch<
+  setSearchAlbums?: React.Dispatch<
     React.SetStateAction<AlbumType[] | undefined>
   >;
 }
@@ -60,7 +60,7 @@ const SearchBar = (props: PropType) => {
     });
 
     setSearchAudios(filterAudio);
-    setSearchAlbums(filterAlbum);
+    setSearchAlbums && setSearchAlbums(filterAlbum);
   };
 
   return (
@@ -96,7 +96,7 @@ const SearchBar = (props: PropType) => {
               setTriggerSearch(false);
 
               setSearchAudios([]);
-              setSearchAlbums([]);
+              setSearchAlbums && setSearchAlbums([]);
             }}
           >
             <IoMdClose />

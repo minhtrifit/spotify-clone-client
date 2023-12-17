@@ -15,6 +15,7 @@ import {
 } from "../actions/media.action";
 
 import { Audio, Album, Artist } from "../../types/media";
+import { AudioColumnType } from "../../types/playlist";
 
 // Interface declair
 interface MediaState {
@@ -31,6 +32,7 @@ interface MediaState {
   isPlayingAlbum: boolean;
   artists: Artist[];
   targetArtist: Artist | null;
+  audiosColumn: AudioColumnType[];
 }
 
 // createAsyncThunk middleware
@@ -49,6 +51,37 @@ export const getAllAudios = createAsyncThunk(
       );
 
       return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.name === "AxiosError") {
+        return thunkAPI.rejectWithValue({ message: "Get audios failed" });
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getAllAudiosColumn = createAsyncThunk(
+  "audios/getAllAudiosColumn",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  // Dùng dấu _ cho các API không có params
+  async (columnId: string, thunkAPI) => {
+    try {
+      const response = await axios.get<any>(
+        `${import.meta.env.VITE_API_URL}/api/v1/audios`,
+        {
+          signal: thunkAPI.signal,
+        }
+      );
+
+      const source: any = response.data.data;
+
+      const data = source.map((audio: Audio) => {
+        return { ...audio, columnId: columnId };
+      });
+
+      return data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.name === "AxiosError") {
@@ -373,6 +406,7 @@ const initialState: MediaState = {
   targetAlbum: null,
   artists: [],
   targetArtist: null,
+  audiosColumn: [],
 };
 
 const mediaReducer = createReducer(initialState, (builder) => {
@@ -381,6 +415,11 @@ const mediaReducer = createReducer(initialState, (builder) => {
     .addCase(getAllAudios.fulfilled, (state, action) => {
       const payload: any = action.payload;
       state.audios = payload.data;
+    })
+
+    .addCase(getAllAudiosColumn.fulfilled, (state, action) => {
+      const payload: any = action.payload;
+      state.audiosColumn = payload;
     })
 
     .addCase(updateTargetAudio, (state, action) => {
