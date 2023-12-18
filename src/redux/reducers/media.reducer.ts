@@ -33,6 +33,7 @@ interface MediaState {
   artists: Artist[];
   targetArtist: Artist | null;
   audiosColumn: AudioColumnType[];
+  userPlaylist: Playlist[];
 }
 
 // createAsyncThunk middleware
@@ -432,7 +433,7 @@ export const getAllPlaylistsByUserId = createAsyncThunk(
   "playlists/getAllPlaylistsByUserId",
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-  async (userId: string, thunkAPI) => {
+  async (userId: number, thunkAPI) => {
     try {
       const response = await axios.get<Playlist[]>(
         `${import.meta.env.VITE_API_URL}/api/v1/playlist/${userId}`,
@@ -468,6 +469,7 @@ const initialState: MediaState = {
   artists: [],
   targetArtist: null,
   audiosColumn: [],
+  userPlaylist: [],
 };
 
 const mediaReducer = createReducer(initialState, (builder) => {
@@ -527,6 +529,11 @@ const mediaReducer = createReducer(initialState, (builder) => {
     .addCase(getArtistById.fulfilled, (state, action) => {
       const payload: any = action.payload;
       state.targetArtist = payload.data;
+    })
+
+    .addCase(getAllPlaylistsByUserId.fulfilled, (state, action) => {
+      const payload: any = action.payload;
+      state.userPlaylist = payload.data;
     })
 
     .addMatcher(

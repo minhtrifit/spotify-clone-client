@@ -1,10 +1,20 @@
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import { getAllPlaylistsByUserId } from "../redux/reducers/media.reducer";
+
+import { User } from "../types/user";
+import { Playlist } from "../types/media";
+
+import { AiOutlineAppstoreAdd } from "react-icons/ai";
 import { FaSpotify } from "react-icons/fa";
 import { BiSearchAlt2, BiSolidSearch, BiLibrary } from "react-icons/bi";
 import { GoHome, GoHomeFill } from "react-icons/go";
 import { IoMdAdd } from "react-icons/io";
-import { useEffect } from "react";
+import { useAppDispatch } from "../redux/hooks";
+import { toast } from "react-toastify";
 
 interface Proptype {
   active: string;
@@ -16,9 +26,19 @@ const Slidebar = (props: Proptype) => {
 
   const navigate = useNavigate();
 
+  const dispatchAsync = useAppDispatch();
+
   const params = window.location.href;
 
   const nagivate = useNavigate();
+
+  const userProfile = useSelector<RootState, User | null>(
+    (state) => state.user.profile
+  );
+
+  const userPlaylist = useSelector<RootState, Playlist[]>(
+    (state) => state.media.userPlaylist
+  );
 
   useEffect(() => {
     if (params.includes("/search")) {
@@ -29,6 +49,14 @@ const Slidebar = (props: Proptype) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
+
+  useEffect(() => {
+    if (userProfile !== null && userProfile.id) {
+      dispatchAsync(getAllPlaylistsByUserId(userProfile.id));
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userProfile]);
 
   return (
     <div className="hidden min-w-[250px] max-h-screen md:flex flex-col gap-2">
@@ -82,11 +110,20 @@ const Slidebar = (props: Proptype) => {
         </div>
       </div>
 
-      <div className="h-[100%] text-[15px] bg-[#121212] rounded-md py-4 px-6">
+      <div
+        className={`flex flex-col h-[100%] text-[15px] bg-[#121212] rounded-md py-4 px-6 ${
+          userPlaylist.length === 0 ? "gap-[100px]" : "gap-10"
+        }`}
+      >
         <div className="flex justify-between items-center">
           <div
             className="flex items-center gap-3 hover:cursor-pointer hover:font-semibold"
             onClick={() => {
+              if (userProfile === null) {
+                toast.error("Please login to add playlist");
+                return;
+              }
+
               navigate("/add/playlist");
             }}
           >
@@ -97,6 +134,53 @@ const Slidebar = (props: Proptype) => {
           <div className="hover:cursor-pointer">
             <IoMdAdd size={25} />
           </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-8 h-[100%] overflow-y-auto">
+          {userPlaylist.length === 0 ? (
+            <div
+              className="flex flex-col gap-5 items-center hover:cursor-pointer"
+              onClick={() => {
+                if (userProfile === null) {
+                  toast.error("Please login to add playlist");
+                  return;
+                }
+
+                navigate("/add/playlist");
+              }}
+            >
+              <AiOutlineAppstoreAdd size={40} />
+              <p className="text-[12px] text-zinc-400">
+                Your playlist is empty, click to add
+              </p>
+            </div>
+          ) : (
+            userPlaylist.map((playlist) => {
+              return (
+                <div
+                  key={playlist.id}
+                  className="border-4 border-solid border-[#2a2a2a] rounded-md w-[100%] flex gap-5 p-2
+                            hover:cursor-pointer hover:bg-[#242424]"
+                >
+                  <div className="min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] flex items-center justify-center">
+                    <img
+                      src={playlist.avatar}
+                      alt="avatar"
+                      className="w-[100%]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <p className="truncate text-sm font-black max-w-[120px]">
+                      {playlist.name}
+                    </p>
+                    <p className="text-[12px] text-zinc-500">
+                      Audios: {playlist.audios?.length}
+                    </p>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

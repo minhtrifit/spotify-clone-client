@@ -27,6 +27,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import {
   addNewPlaylist,
   getAllAudiosColumn,
+  getAllPlaylistsByUserId,
 } from "../../redux/reducers/media.reducer";
 
 import SearchBar from "../SearchBar";
@@ -273,7 +274,7 @@ const AddPlaylistBoard = () => {
           resUploadImage.data
         }`;
 
-        if (userProfile && audioList) {
+        if (userProfile && userProfile.id && audioList) {
           const newPlaylist: Playlist = {
             userId: userProfile.id,
             name: name,
@@ -287,6 +288,8 @@ const AddPlaylistBoard = () => {
 
           if (resAddNewPlaylist.type === "playlists/addNewPlaylist/fulfilled") {
             toast.success("Create playlist successfully");
+
+            dispatchAsync(getAllPlaylistsByUserId(userProfile.id));
           }
 
           if (resAddNewPlaylist.type === "playlists/addNewPlaylist/rejected") {
@@ -327,78 +330,80 @@ const AddPlaylistBoard = () => {
       ) : (
         <div className="flex flex-col items-center">
           <form
-            className="w-[400px] md:w-[500px] p-4"
+            className="w-[400px] md:w-[750px]"
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="flex flex-col gap-5 items-center">
-              <div className="flex items-center gap-5 mb-10">
-                <p className="text-2xl font-black">
-                  Create Your Own Sound World
-                </p>
-                <MdLibraryMusic size={30} />
-              </div>
-
-              <div className="w-[100%] h-[120px] flex flex-col gap-3">
-                <p className="text-sm font-semibold">Name</p>
-                <input
-                  className={`w-[100%] bg-[#242424] px-4 py-2 border border-solid border-gray-500 rounded-md ${
-                    errors?.email?.message && "border-red-500"
-                  }`}
-                  type="text"
-                  placeholder="Name"
-                  {...register("name", {
-                    required: "Playlist Name is required",
-                  })}
-                />
-                {errors?.name?.message && (
-                  <p className="text-red-500">
-                    {errors.name.message.toString()}
+              <div className="w-[100%] bg-[#1a1a1a] flex flex-col gap-5 items-center px-10 md:px-20 py-6 rounded-md mb-10">
+                <div className="flex items-center gap-5 mb-10">
+                  <p className="text-md md:text-2xl font-black">
+                    Create Your Own Sound World
                   </p>
-                )}
-              </div>
+                  <MdLibraryMusic size={30} />
+                </div>
 
-              <div className="w-[100%] flex justify-between gap-5 mb-20">
-                <div className="h-[120px] flex flex-col gap-3">
-                  <p className="text-sm font-semibold">Avatar</p>
+                <div className="w-[100%] h-[120px] flex flex-col gap-3">
+                  <p className="text-sm font-semibold">Name</p>
                   <input
-                    type="file"
-                    className="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0
-                              file:text-sm file:font-semibold file:bg-[#1ed760] file:text-black hover:file:bg-[#19fa6a]
-                              file:disabled:opacity-50 file:disabled:pointer-events-none"
-                    {...register("picture", {
-                      required: "Avatar is required",
-                      validate: (value) => {
-                        const acceptedFormats = ["png", "jpg", "jpeg"];
-                        const fileExtension = value[0]?.name
-                          .split(".")
-                          .pop()
-                          .toLowerCase();
-                        if (!acceptedFormats.includes(fileExtension)) {
-                          return "Invalid file format. Only image files are allowed.";
-                        }
-                        return true;
-                      },
-                      onChange: (e) => {
-                        handlePreviewImage(e);
-                      },
+                    className={`w-[100%] bg-[#242424] px-4 py-2 border border-solid border-gray-500 rounded-md ${
+                      errors?.email?.message && "border-red-500"
+                    }`}
+                    type="text"
+                    placeholder="Name"
+                    {...register("name", {
+                      required: "Playlist Name is required",
                     })}
                   />
-                  {errors?.picture?.message && (
+                  {errors?.name?.message && (
                     <p className="text-red-500">
-                      {errors.picture.message.toString()}
+                      {errors.name.message.toString()}
                     </p>
                   )}
                 </div>
 
-                {previewImage && (
-                  <div className="h-[100px] flex flex-col gap-3">
-                    <img
-                      src={previewImage}
-                      alt="preview"
-                      className="max-w-[100px]"
+                <div className="w-[100%] flex justify-between gap-5">
+                  <div className="h-[120px] flex flex-col gap-3">
+                    <p className="text-sm font-semibold">Avatar</p>
+                    <input
+                      type="file"
+                      className="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                              file:text-sm file:font-semibold file:bg-[#1ed760] file:text-black hover:file:bg-[#19fa6a]
+                              file:disabled:opacity-50 file:disabled:pointer-events-none"
+                      {...register("picture", {
+                        required: "Avatar is required",
+                        validate: (value) => {
+                          const acceptedFormats = ["png", "jpg", "jpeg"];
+                          const fileExtension = value[0]?.name
+                            .split(".")
+                            .pop()
+                            .toLowerCase();
+                          if (!acceptedFormats.includes(fileExtension)) {
+                            return "Invalid file format. Only image files are allowed.";
+                          }
+                          return true;
+                        },
+                        onChange: (e) => {
+                          handlePreviewImage(e);
+                        },
+                      })}
                     />
+                    {errors?.picture?.message && (
+                      <p className="text-red-500">
+                        {errors.picture.message.toString()}
+                      </p>
+                    )}
                   </div>
-                )}
+
+                  {previewImage && (
+                    <div className="h-[100px] flex flex-col gap-3">
+                      <img
+                        src={previewImage}
+                        alt="preview"
+                        className="max-w-[100px]"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <DndContext
