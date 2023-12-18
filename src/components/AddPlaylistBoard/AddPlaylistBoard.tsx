@@ -305,6 +305,7 @@ const AddPlaylistBoard = () => {
     resetField("name");
     resetField("picture");
     setPreviewImage("");
+    setAudios(sourceAudio);
   };
 
   return (

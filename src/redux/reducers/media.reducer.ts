@@ -453,6 +453,30 @@ export const getAllPlaylistsByUserId = createAsyncThunk(
   }
 );
 
+export const getPlaylistById = createAsyncThunk(
+  "playlists/getPlaylistById",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (playlistId: number, thunkAPI) => {
+    try {
+      const response = await axios.get<Playlist>(
+        `${import.meta.env.VITE_API_URL}/api/v1/playlist/detail/${playlistId}`,
+        {
+          signal: thunkAPI.signal,
+        }
+      );
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.name === "AxiosError") {
+        return thunkAPI.rejectWithValue({ message: "Get audios failed" });
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 // InitialState value
 const initialState: MediaState = {
   currentId: "",
@@ -534,6 +558,11 @@ const mediaReducer = createReducer(initialState, (builder) => {
     .addCase(getAllPlaylistsByUserId.fulfilled, (state, action) => {
       const payload: any = action.payload;
       state.userPlaylist = payload.data;
+    })
+
+    .addCase(getPlaylistById.fulfilled, (state, action) => {
+      const payload: any = action.payload;
+      state.detailAlbum = payload.data;
     })
 
     .addMatcher(

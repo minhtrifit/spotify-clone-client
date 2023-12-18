@@ -8,6 +8,7 @@ import MainSearch from "./MainSearch";
 import DetailAudio from "../pages/DetailAudio";
 import DetailAlbum from "../pages/DetailAlbum";
 import Management from "../pages/Management";
+import DetailPlaylist from "../pages/DetailPlaylist";
 
 import ProtectedRoute from "./ProtectedRoute";
 import RoleProtectedRoute from "./RoleProtectedRoute";
@@ -25,6 +26,7 @@ const Content = () => {
           <Route path="/audio/:id" element={<DetailAudio />} />
           <Route path="/album/:id" element={<DetailAlbum />} />
           <Route path="/all/:type" element={<ViewAll />} />
+          <Route path="/playlist/:id" element={<DetailPlaylist />} />
           <Route
             path="/management/:type"
             element={

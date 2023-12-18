@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useAppDispatch } from "../redux/hooks";
 import { RootState } from "../redux/store";
-import { getAlbumById } from "../redux/reducers/media.reducer";
+import { getPlaylistById } from "../redux/reducers/media.reducer";
 
 import { Album, Audio } from "../types/media";
 
@@ -18,7 +18,7 @@ import { useParams } from "react-router-dom";
 
 import { fetchAudioDuration } from "../helpers";
 
-const DetailAlbum = () => {
+const DetailPlaylist = () => {
   const params = useParams();
   const { id } = params;
 
@@ -42,7 +42,7 @@ const DetailAlbum = () => {
   );
 
   useEffect(() => {
-    if (id) dispatchAsync(getAlbumById(Number(id)));
+    if (id) dispatchAsync(getPlaylistById(Number(id)));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -99,17 +99,17 @@ const DetailAlbum = () => {
   };
 
   return (
-    <div className="bg-gray-800 pt-[80px]">
+    <div className="bg-[#4d3567] pt-[80px]">
       {album && (
         <div className="px-6 flex flex-wrap gap-5">
           <div className="w-[200px] h-[200px]">
             <img src={album.avatar} alt="avatar" />
           </div>
           <div className="flex flex-col gap-5 self-end">
-            <p className="text-sm font-semibold">Album</p>
+            <p className="text-sm font-semibold">Playlist</p>
             <p className="text-7xl font-black">{album?.name}</p>
             <div className="flex flex-wrap text-sm text-gray-500 font-thin">
-              <p>Release: {album.createdAt?.split(" ")[0]}</p>
+              <p>Created by: {album.author}</p>
             </div>
           </div>
         </div>
@@ -154,7 +154,7 @@ const DetailAlbum = () => {
                 return (
                   <div
                     key={audio.id}
-                    className="flex items-center justify-between gap-10 px-4 rounded-md hover:cursor-pointer hover:bg-[#292929]"
+                    className="group flex items-center justify-between gap-10 px-4 rounded-md hover:cursor-pointer hover:bg-[#64358c]"
                     onDoubleClick={() => {
                       handlePlayAudio(audio);
                     }}
@@ -190,7 +190,14 @@ const DetailAlbum = () => {
                               audio.artists?.map((artist, index, row) => {
                                 if (index + 1 === row.length) {
                                   // last one
-                                  return <p key={artist.id}>{artist.name}</p>;
+                                  return (
+                                    <p
+                                      key={artist.id}
+                                      className="text-zinc-400 group-hover:text-[#fe97aa]"
+                                    >
+                                      {artist.name}
+                                    </p>
+                                  );
                                 } else {
                                   // Not last one
                                   return <p key={artist.id}>{artist.name}, </p>;
@@ -213,4 +220,4 @@ const DetailAlbum = () => {
   );
 };
 
-export default DetailAlbum;
+export default DetailPlaylist;
