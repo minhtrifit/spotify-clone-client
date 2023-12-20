@@ -12,9 +12,13 @@ import {
   deleteArtistById,
   deleteAudioById,
   getAllAudios,
+  getAllPlaylistsByUserId,
+  deletePlaylistById,
 } from "../redux/reducers/media.reducer";
 
-import { Album, Artist, Audio } from "../types/media";
+import { Album, Artist, Audio, Playlist } from "../types/media";
+import { User } from "../types/user";
+
 import { deleteFileByName } from "../redux/reducers/upload.reducer";
 
 import EditArtistModal from "../components/EditArtistModal";
@@ -50,6 +54,22 @@ const Management = () => {
   const audioList = useSelector<RootState, Audio[]>(
     (state) => state.media.audios
   );
+
+  const userProfile = useSelector<RootState, User | null>(
+    (state) => state.user.profile
+  );
+
+  const userPlaylist = useSelector<RootState, Playlist[]>(
+    (state) => state.media.userPlaylist
+  );
+
+  useEffect(() => {
+    if (userProfile !== null && userProfile.id) {
+      dispatchAsync(getAllPlaylistsByUserId(userProfile.id));
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userProfile]);
 
   useEffect(() => {
     if (type?.toLowerCase() === "artist" && artistList.length !== 0) {
@@ -97,6 +117,31 @@ const Management = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, audioList]);
 
+  useEffect(() => {
+    if (type?.toLowerCase() === "playlist" && userPlaylist.length !== 0) {
+      const keys = Object.keys(userPlaylist[0]);
+      const headingArr = [];
+
+      for (let i = 0; i < keys.length; ++i) {
+        if (keys[i] !== "author") {
+          headingArr.push({
+            key: keys[i],
+            value: capitalizeFirstLetter(keys[i]),
+          });
+        }
+      }
+
+      headingArr.push({
+        key: "actions",
+        value: "Actions",
+      });
+
+      setHeading(headingArr);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, userPlaylist]);
+
   // Get pagination artist list
   useEffect(() => {
     if (type?.toLowerCase() === "artist" && artistList.length !== 0) {
@@ -116,7 +161,7 @@ const Management = () => {
   useEffect(() => {
     if (type?.toLowerCase() === "audio" && audioList.length !== 0) {
       // Caculate page
-      const total = Math.ceil(artistList.length / ITEMS_PER_PAGE);
+      const total = Math.ceil(audioList.length / ITEMS_PER_PAGE);
       setPages(Array.from({ length: total }, (_, i) => i + 1));
 
       // Init first page list
@@ -126,6 +171,21 @@ const Management = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, audioList]);
+
+  // Get pagination playlist
+  useEffect(() => {
+    if (type?.toLowerCase() === "playlist" && userPlaylist.length !== 0) {
+      // Caculate page
+      const total = Math.ceil(userPlaylist.length / ITEMS_PER_PAGE);
+      setPages(Array.from({ length: total }, (_, i) => i + 1));
+
+      // Init first page list
+      const begin = (activePage - 1) * ITEMS_PER_PAGE;
+      const end = (activePage - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE;
+      setListPerPage(userPlaylist.slice(begin, end));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, userPlaylist]);
 
   const handleDeleteArtist = async (
     id: number | undefined,
@@ -181,6 +241,26 @@ const Management = () => {
     }
   };
 
+  const handleDeletePlaylist = async (id: number | undefined) => {
+    if (confirm(`Are you sure want to delete playlist ${id}?`) == true) {
+      if (userProfile?.id && id !== undefined) {
+        try {
+          const res = await dispatchAsync(deletePlaylistById(id)).unwrap();
+
+          // Reload playlist list
+          dispatchAsync(getAllPlaylistsByUserId(userProfile?.id));
+
+          if (res?.message) {
+            toast.success(res.message);
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error("Delete audio failed");
+        }
+      }
+    }
+  };
+
   const handlePagination = (page: number) => {
     setActivePage(page);
     const begin = (page - 1) * ITEMS_PER_PAGE;
@@ -188,6 +268,7 @@ const Management = () => {
 
     if (type === "artist") setListPerPage(artistList.slice(begin, end));
     if (type === "audio") setListPerPage(audioList.slice(begin, end));
+    if (type === "playlist") setListPerPage(userPlaylist.slice(begin, end));
   };
 
   return (
@@ -366,6 +447,102 @@ const Management = () => {
                           className="text-black font-bold px-4 py-2 rounded-md bg-red-600 hover:bg-red-500"
                           onClick={() => {
                             handleDeleteAudio(audio.id, audio.avatar);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          <div className="my-10 flex justify-center items-center">
+            <nav aria-label="Page navigation">
+              <ul className="inline-flex">
+                {pages?.map((page) => {
+                  if (page !== activePage) {
+                    return (
+                      <li key={uuidv4()}>
+                        <button
+                          className="h-10 px-5 transition-colors duration-150 focus:shadow-outline text-green-600 hover:bg-green-100"
+                          onClick={() => {
+                            handlePagination(page);
+                          }}
+                        >
+                          {page}
+                        </button>
+                      </li>
+                    );
+                  } else {
+                    return (
+                      <li key={uuidv4()}>
+                        <button
+                          className="h-10 px-5 transition-colors duration-150 focus:shadow-outline text-white bg-green-600 border border-green-600"
+                          onClick={() => {
+                            handlePagination(page);
+                          }}
+                        >
+                          {page}
+                        </button>
+                      </li>
+                    );
+                  }
+                })}
+              </ul>
+            </nav>
+          </div>
+        </>
+      )}
+
+      {type && type.toLowerCase() === "playlist" && (
+        <>
+          <table className="mt-10 min-w-full shadow-md border-t border-l border-r border-zinc-500">
+            <thead className="p-2 bg-[#2a2a2a]">
+              <tr className="bg-[#1a1a1a] text-[#1ed760]">
+                {heading.map((h) => {
+                  return (
+                    <th key={h.key} className="py-3 px-4 text-left">
+                      {h.value}
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody className="text-blue-gray-900">
+              {listPerPage?.map((playlist) => {
+                return (
+                  <tr
+                    key={uuidv4()}
+                    className="border-b border-zinc-500 hover:cursor-pointer hover:bg-[#242424]"
+                  >
+                    <td className="py-3 px-4">
+                      <p>{playlist.id}</p>
+                    </td>
+                    <td className="py-3 px-4 max-w-[100px]">
+                      <p className="truncate">{playlist.userId}</p>
+                    </td>
+                    <td className="py-3 px-4">
+                      <p className="truncate">{playlist.name}</p>
+                    </td>
+                    <td className="py-3 px-4">
+                      <p className="truncate">{playlist.audios?.length}</p>
+                    </td>
+                    <td className="py-3 px-4 ">
+                      <img
+                        className="w-[70px] rounded-md"
+                        src={playlist.avatar}
+                        alt="avatar"
+                      />
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex gap-5">
+                        <button
+                          className="text-black font-bold px-4 py-2 rounded-md bg-red-600 hover:bg-red-500"
+                          onClick={() => {
+                            handleDeletePlaylist(playlist.id);
                           }}
                         >
                           Delete

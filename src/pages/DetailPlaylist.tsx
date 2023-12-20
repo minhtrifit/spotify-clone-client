@@ -1,18 +1,25 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { useNavigate } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
 import { useAppDispatch } from "../redux/hooks";
 import { RootState } from "../redux/store";
-import { getPlaylistById } from "../redux/reducers/media.reducer";
+import {
+  getPlaylistById,
+  modifyDeletePlaylist,
+} from "../redux/reducers/media.reducer";
+import { handleAccessToken } from "../redux/reducers/user.reducer";
 
 import { Album, Audio } from "../types/media";
+import { User } from "../types/user";
 
 import { IoMdPlay, IoMdPause } from "react-icons/io";
 import { LuHeart } from "react-icons/lu";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { IoStatsChartSharp } from "react-icons/io5";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 import { useParams } from "react-router-dom";
 
@@ -40,6 +47,15 @@ const DetailPlaylist = () => {
   const targetAudio = useSelector<RootState, Audio | null>(
     (state) => state.media.targetAudio
   );
+
+  const userProfile = useSelector<RootState, User | null>(
+    (state) => state.user.profile
+  );
+
+  useEffect(() => {
+    dispatchAsync(handleAccessToken());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (id) dispatchAsync(getPlaylistById(Number(id)));
@@ -96,6 +112,32 @@ const DetailPlaylist = () => {
 
     // Trigger playing album list
     dispatch({ type: "media/updateIsPlayingAlbum", payload: true });
+  };
+
+  const handleModifyDeletePlaylist = async (audioId: number) => {
+    try {
+      if (album && userProfile?.id && audioId) {
+        const data = {
+          userId: userProfile.id,
+          playlistId: album.id,
+          audioId: audioId,
+        };
+
+        const res = await dispatchAsync(modifyDeletePlaylist(data));
+
+        if (res.type === "playlists/modifyDeletePlaylist/fulfilled") {
+          // Refresh detail playlist page
+          dispatchAsync(getPlaylistById(Number(id)));
+
+          toast.success("Modify playlist successfully");
+        } else {
+          toast.error("Modify playlist failed");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Modify playlist failed");
+    }
   };
 
   return (
@@ -208,7 +250,17 @@ const DetailPlaylist = () => {
                       </div>
                     </div>
 
-                    <p>{duration}</p>
+                    <div className="flex items-center gap-5">
+                      <div
+                        className="hover:text-[#fe97aa]"
+                        onClick={() => {
+                          if (audio.id) handleModifyDeletePlaylist(audio.id);
+                        }}
+                      >
+                        <FaRegTrashAlt size={20} />
+                      </div>
+                      <p>{duration}</p>
+                    </div>
                   </div>
                 );
               }

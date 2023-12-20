@@ -1,15 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { useSelector, useDispatch } from "react-redux";
 import { useAppDispatch } from "../redux/hooks";
 import { RootState } from "../redux/store";
-import { getAudioById } from "../redux/reducers/media.reducer";
+import {
+  getAllPlaylistsByUserId,
+  getAudioById,
+  modifyAddPlaylist,
+} from "../redux/reducers/media.reducer";
+import { handleAccessToken } from "../redux/reducers/user.reducer";
 
-import { Audio } from "../types/media";
+import { Audio, Playlist } from "../types/media";
+import { User } from "../types/user";
 
 import { IoMdPlay, IoMdPause } from "react-icons/io";
 import { LuHeart } from "react-icons/lu";
 import { HiDotsHorizontal } from "react-icons/hi";
+import { CgAlbum } from "react-icons/cg";
 
 import { useParams } from "react-router-dom";
 
@@ -20,6 +28,8 @@ const DetailAudio = () => {
   const dispatchAsync = useAppDispatch();
   const dispatch = useDispatch();
 
+  const [openAddPlaylist, setOpenAddPlaylist] = useState<boolean>(false);
+
   const audio = useSelector<RootState, Audio | null>(
     (state) => state.media.detailAudio
   );
@@ -28,11 +38,64 @@ const DetailAudio = () => {
     (state) => state.media.isPlayingAudio
   );
 
+  const userProfile = useSelector<RootState, User | null>(
+    (state) => state.user.profile
+  );
+
+  const userPlaylist = useSelector<RootState, Playlist[]>(
+    (state) => state.media.userPlaylist
+  );
+
+  useEffect(() => {
+    dispatchAsync(handleAccessToken());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (userProfile !== null && userProfile.id) {
+      dispatchAsync(getAllPlaylistsByUserId(userProfile.id));
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userProfile]);
+
   useEffect(() => {
     if (id) dispatchAsync(getAudioById(Number(id)));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Define the click event handler type
+  type ClickEventHandler = (event: MouseEvent) => void;
+
+  useEffect(() => {
+    // Add the click event listener to the document
+    document.addEventListener("click", handleClick);
+
+    // Remember to clean up the listener on unmount
+    return () => document.removeEventListener("click", handleClick);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Declare the event listener function
+  const handleClick: ClickEventHandler = (event) => {
+    const target = event.target as HTMLElement;
+    const id = target.id;
+
+    if (target.className.includes) {
+      // const name = target.className.includes("add-dropdown-menu");
+      if (
+        !target.className.includes("add-playlist-menu") ||
+        !target.className.includes("add-playlist-menu-overlay")
+      )
+        setOpenAddPlaylist(false);
+    }
+
+    if (!target.className.includes && id !== "add") {
+      setOpenAddPlaylist(false);
+    }
+  };
 
   const handlePlayAudio = (audio: Audio) => {
     dispatch({ type: "media/updateTargetAudio", payload: audio });
@@ -43,6 +106,31 @@ const DetailAudio = () => {
 
     // Trigger playing album list
     dispatch({ type: "media/updateIsPlayingAlbum", payload: false });
+  };
+
+  const handleModifyAddPlaylist = async (playlistId: number) => {
+    try {
+      if (audio?.id && userProfile?.id && playlistId) {
+        const data = {
+          userId: userProfile.id,
+          playlistId: playlistId,
+          audioId: audio.id,
+        };
+
+        console.log(data);
+
+        const res = await dispatchAsync(modifyAddPlaylist(data));
+
+        if (res.type === "playlists/modifyAddPlaylist/fulfilled") {
+          toast.success("Modify playlist successfully");
+        } else {
+          toast.error("Modify playlist failed");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Modify playlist failed");
+    }
   };
 
   return (
@@ -79,7 +167,7 @@ const DetailAudio = () => {
           <div className="flex items-center gap-10">
             <div
               className="rounded-full w-[60px] h-[60px] flex justify-center items-center bg-[#1ed760]
-            transform transition duration-200 hover:scale-110 hover:cursor-pointer"
+                        transform transition duration-200 hover:scale-110 hover:cursor-pointer"
               onClick={() => {
                 handlePlayAudio(audio);
               }}
@@ -91,8 +179,45 @@ const DetailAudio = () => {
               )}
             </div>
 
-            <div className="text-gray-500 hover:text-white hover:cursor-pointer">
-              <LuHeart size={35} />
+            <div className="add-playlist-menu relative text-gray-500 hover:text-white hover:cursor-pointer">
+              <div
+                className="add-playlist-menu-overlay absolute top-0 rounded-full w-[100%] h-[100%] opacity-0 hover:cursor-pointer"
+                onClick={() => {
+                  if (!userProfile) {
+                    toast.error("Please login to add this audio");
+                    return;
+                  }
+
+                  setOpenAddPlaylist(!openAddPlaylist);
+                }}
+              ></div>
+
+              <LuHeart className="add-playlist-menu" size={35} />
+
+              {openAddPlaylist && (
+                <div className="absolute bg-[#242424] flex flex-col gap-3 text-white p-2 top-0 left-[50px]">
+                  <p className="self-center text-[15px] text-[#727272]">
+                    Add audio to playlist
+                  </p>
+
+                  {userPlaylist.length !== 0 &&
+                    userPlaylist?.map((playlist) => {
+                      return (
+                        <div
+                          key={playlist.id}
+                          className="min-w-[250px] max-w-[250px] flex items-center justify-between hover:bg-[#353535] p-2 rounded-md"
+                          onClick={() => {
+                            if (playlist.id)
+                              handleModifyAddPlaylist(playlist.id);
+                          }}
+                        >
+                          <p className="truncate">{playlist.name}</p>
+                          <CgAlbum size={20} />
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
             </div>
 
             <div className="text-gray-500 hover:text-white hover:cursor-pointer">

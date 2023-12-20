@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useAppDispatch } from "../redux/hooks";
 import { RootState } from "../redux/store";
 import { getAlbumById } from "../redux/reducers/media.reducer";
+import { handleAccessToken } from "../redux/reducers/user.reducer";
 
 import { Album, Audio } from "../types/media";
 
@@ -40,6 +41,11 @@ const DetailAlbum = () => {
   const targetAudio = useSelector<RootState, Audio | null>(
     (state) => state.media.targetAudio
   );
+
+  useEffect(() => {
+    dispatchAsync(handleAccessToken());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (id) dispatchAsync(getAlbumById(Number(id)));

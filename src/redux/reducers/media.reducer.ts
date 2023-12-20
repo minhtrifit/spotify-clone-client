@@ -477,6 +477,118 @@ export const getPlaylistById = createAsyncThunk(
   }
 );
 
+export const modifyAddPlaylist = createAsyncThunk(
+  "playlists/modifyAddPlaylist",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (
+    data: { userId: number; playlistId: number; audioId: number },
+    thunkAPI
+  ) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.put(
+          `${import.meta.env.VITE_API_URL}/api/v1/edit/playlist`,
+          {
+            userId: data.userId,
+            playlistId: data.playlistId,
+            audioId: data.audioId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const modifyDeletePlaylist = createAsyncThunk(
+  "playlists/modifyDeletePlaylist",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (
+    data: { userId: number; playlistId: number; audioId: number },
+    thunkAPI
+  ) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.delete(
+          `${import.meta.env.VITE_API_URL}/api/v1/edit/playlist`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            data: {
+              userId: data.userId,
+              playlistId: data.playlistId,
+              audioId: data.audioId,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const deletePlaylistById = createAsyncThunk(
+  "playlists/deletePlaylistById",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (id: number, thunkAPI) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/delete/playlist/${id}`,
+          {
+            //
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 // InitialState value
 const initialState: MediaState = {
   currentId: "",
