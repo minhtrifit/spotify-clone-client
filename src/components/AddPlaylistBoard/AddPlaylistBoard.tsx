@@ -310,13 +310,6 @@ const AddPlaylistBoard = () => {
 
   return (
     <div className="px-6 mt-20">
-      <SearchBar
-        search={search}
-        setSearch={setSearch}
-        setTriggerSearch={setTriggerSearch}
-        setSearchAudios={setSearchAudios}
-      />
-
       {isLoading ? (
         <div className="flex justify-center">
           <div
@@ -329,13 +322,13 @@ const AddPlaylistBoard = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center">
+        <div className="relative flex flex-col items-center">
           <form
             className="w-[400px] md:w-[750px]"
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="flex flex-col gap-5 items-center">
-              <div className="w-[100%] bg-[#1a1a1a] flex flex-col gap-5 items-center px-10 md:px-20 py-6 rounded-md mb-10">
+              <div className="w-[100%] bg-[#1a1a1a] flex flex-col gap-5 items-center px-10 md:px-20 py-6 rounded-md mb-[100px]">
                 <div className="flex items-center gap-5 mb-10">
                   <p className="text-md md:text-2xl font-black">
                     Create Your Own Sound World
@@ -451,6 +444,15 @@ const AddPlaylistBoard = () => {
               </button>
             </div>
           </form>
+
+          <div className="absolute top-[450px]">
+            <SearchBar
+              search={search}
+              setSearch={setSearch}
+              setTriggerSearch={setTriggerSearch}
+              setSearchAudios={setSearchAudios}
+            />
+          </div>
         </div>
       )}
     </div>

@@ -35,6 +35,8 @@ const SearchBar = (props: PropType) => {
 
   const dispatchAsync = useAppDispatch();
 
+  const params = window.location.href;
+
   const audios = useSelector<RootState, AudioType[] | null>(
     (state) => state.media.audios
   );
@@ -70,8 +72,10 @@ const SearchBar = (props: PropType) => {
       }}
     >
       <div
-        className="absolute left-3 top-[80px] w-[300px] md:top-[20px] md:left-[150px] md:w-[400px] border-2 border-[#242424] p-2 flex justify-start items-center gap-5 bg-[#242424] rounded-full
-                    focus-within:border-white"
+        className={`w-[300px] md:top-[20px] md:left-[150px] md:w-[400px] border-2 border-[#242424] p-2 flex justify-start items-center gap-5 bg-[#242424] rounded-full
+        focus-within:border-white ${
+          !params.includes("/add/playlist") && "absolute left-3 top-[80px]"
+        }`}
       >
         <button
           className="w-[10%] h-[10%] flex justify-center items-center hover:cursor-pointer hover:text-[#1ed760]"
