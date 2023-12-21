@@ -15,7 +15,7 @@ export interface Artist {
 }
 
 export interface Album {
-  id: number;
+  id?: number;
   name: string;
   author?: string;
   audios?: Audio[];

@@ -24,6 +24,7 @@ import AddDropdown from "./AddDropdown";
 
 import AddArtistModal from "./AddArtistModal";
 import AddAudioModal from "./AddAudioModal";
+import AddAlbumModal from "./AddAlbumModal";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const Header = () => {
 
   const [openAddArtistModal, setOpenAddArtistModal] = useState<boolean>(false);
   const [openAddAudioModal, setOpenAddAudioModal] = useState<boolean>(false);
+  const [openAddAlbumModal, setOpenAddAlbumModal] = useState<boolean>(false);
 
   const userDropDownItems = [
     {
@@ -129,6 +131,7 @@ const Header = () => {
               items={addDropDownItems}
               setOpenAddArtistModal={setOpenAddArtistModal}
               setOpenAddAudioModal={setOpenAddAudioModal}
+              setOpenAddAlbumModal={setOpenAddAlbumModal}
             />
 
             <AddArtistModal
@@ -139,6 +142,11 @@ const Header = () => {
             <AddAudioModal
               openAddAudioModal={openAddAudioModal}
               setOpenAddAudioModal={setOpenAddAudioModal}
+            />
+
+            <AddAlbumModal
+              openAddAlbumModal={openAddAlbumModal}
+              setOpenAddAlbumModal={setOpenAddAlbumModal}
             />
 
             <UserDropdown

@@ -12,6 +12,7 @@ import {
   updateIsPlaying,
   updateIsPlayingAlbum,
   updateTargetAlbum,
+  updateAlbums,
 } from "../actions/media.action";
 
 import { Audio, Album, Artist, Playlist } from "../../types/media";
@@ -589,6 +590,76 @@ export const deletePlaylistById = createAsyncThunk(
   }
 );
 
+export const deleteAlbumById = createAsyncThunk(
+  "albums/deleteAlbumById",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (id: number, thunkAPI) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/delete/album/${id}`,
+          {
+            //
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const addNewAlbum = createAsyncThunk(
+  "albums/addNewAlbum",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  async (album: Album, thunkAPI) => {
+    try {
+      const accessToken = sessionStorage
+        .getItem("accessToken")
+        ?.toString()
+        .replace(/^"(.*)"$/, "$1");
+
+      if (accessToken) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/add/album`,
+          {
+            name: album.name,
+            audios: album.audios,
+            avatar: album.avatar,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        return response.data;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 // InitialState value
 const initialState: MediaState = {
   currentId: "",
@@ -630,6 +701,11 @@ const mediaReducer = createReducer(initialState, (builder) => {
     .addCase(updateTargetAlbum, (state, action) => {
       const album: any = action.payload;
       state.targetAlbum = album;
+    })
+
+    .addCase(updateAlbums, (state, action) => {
+      const value: any = action.payload;
+      state.albums = value;
     })
 
     .addCase(getAudioById.fulfilled, (state, action) => {

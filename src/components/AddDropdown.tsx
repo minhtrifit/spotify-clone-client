@@ -19,10 +19,17 @@ interface PropType {
   items: ItemType[];
   setOpenAddArtistModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenAddAudioModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenAddAlbumModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AddDropdown = (props: PropType) => {
-  const { icon, items, setOpenAddArtistModal, setOpenAddAudioModal } = props;
+  const {
+    icon,
+    items,
+    setOpenAddArtistModal,
+    setOpenAddAudioModal,
+    setOpenAddAlbumModal,
+  } = props;
 
   const navigate = useNavigate();
 
@@ -78,6 +85,10 @@ const AddDropdown = (props: PropType) => {
 
     if (name === "Add new audio" && type === "Audio") {
       setOpenAddAudioModal(true);
+    }
+
+    if (name === "Add new album" && type === "Album") {
+      setOpenAddAlbumModal(true);
     }
 
     if (name === "Add new playlist" && type === "Playlist") {
