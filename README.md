@@ -63,6 +63,14 @@
 
 > ## 3. Project Showcase
 
+* **Register Page**
+
+![register](/showcase/register.png)
+
+* **Login Page**
+
+![login](/showcase/login.png)
+
 * **Homepage**
 
 ![main1](/showcase/main.png)

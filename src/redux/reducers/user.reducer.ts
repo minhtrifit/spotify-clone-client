@@ -46,6 +46,33 @@ export const loginAccount = createAsyncThunk(
   }
 );
 
+export const registerAccount = createAsyncThunk(
+  "users/registerAccount",
+
+  async (account: User, thunkAPI) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        {
+          signal: thunkAPI.signal,
+          username: account.username,
+          password: account.password,
+          email: account.email,
+          roles: account.roles,
+        }
+      );
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.name === "AxiosError") {
+        return thunkAPI.rejectWithValue({ message: "Register account failed" });
+      }
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const getUserProfile = createAsyncThunk(
   "users/getUserProfile",
 
