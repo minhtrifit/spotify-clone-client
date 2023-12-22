@@ -31,11 +31,17 @@ const Register = () => {
   const navigate = useNavigate();
 
   const onSubmit = (data: any) => {
+    const adminPasscode = data.admin;
+    let roles = "";
+
+    if (adminPasscode === "") roles = "ROLE_USER";
+    if (adminPasscode !== "" && adminPasscode === "admin") roles = "ROLE_ADMIN";
+
     const account: User = {
       username: data?.username,
       password: data?.password,
       email: data?.email,
-      roles: "ROLE_ADMIN",
+      roles: roles,
     };
 
     const registerPromise = dispatchAsync(registerAccount(account));
@@ -55,6 +61,7 @@ const Register = () => {
     resetField("username");
     resetField("password");
     resetField("confirm");
+    resetField("admin");
   };
 
   return (
@@ -164,6 +171,21 @@ const Register = () => {
               <p className="text-red-500">
                 {errors.confirm.message.toString()}
               </p>
+            )}
+          </div>
+
+          <div className="w-[100%] h-[120px] md:w-[45%] flex flex-col gap-3">
+            <p className="text-sm font-semibold">Admin code (optional)</p>
+            <input
+              className={`w-[100%] bg-[#242424] px-4 py-2 border border-solid border-gray-500 rounded-md ${
+                errors?.admin?.message && "border-red-500"
+              }`}
+              type="text"
+              placeholder="Admin code"
+              {...register("admin")}
+            />
+            {errors?.admin?.message && (
+              <p className="text-red-500">{errors.admin.message.toString()}</p>
             )}
           </div>
 
