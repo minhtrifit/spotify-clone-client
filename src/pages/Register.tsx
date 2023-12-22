@@ -35,6 +35,11 @@ const Register = () => {
     let roles = "";
 
     if (adminPasscode === "") roles = "ROLE_USER";
+    if (adminPasscode !== "" && adminPasscode !== "admin") {
+      toast.error("Wrong admin code");
+      return;
+    }
+
     if (adminPasscode !== "" && adminPasscode === "admin") roles = "ROLE_ADMIN";
 
     const account: User = {
